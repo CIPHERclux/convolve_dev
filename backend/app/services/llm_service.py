@@ -12,13 +12,13 @@ KEY ARCHITECTURAL CHANGE (Phase 3):
 """
 
 import json
-from typing import List, Dict, Any, Optional, Tuple
 
 from openai import OpenAI
 
 from app.config import settings
 from app.models.schemas import (
-    SafetyCheck, MemoryContext, BiomarkerPayload, ToolCall,
+    SafetyCheck,
+    ToolCall,
 )
 from app.utils.logger import get_logger
 
@@ -115,12 +115,12 @@ class LLMService:
     async def generate_response(
         self,
         user_text: str,
-        conversation_history: List[Dict[str, str]],
+        conversation_history: list[dict[str, str]],
         biomarker_summary: str = "",
         memory_context: str = "",
         profile_summary: str = "",
         safety: SafetyCheck = None,
-    ) -> Tuple[str, List[ToolCall], str]:
+    ) -> tuple[str, list[ToolCall], str]:
         """
         Single LLM call that generates response + tool calls.
 
@@ -194,7 +194,7 @@ class LLMService:
                 "neutral",
             )
 
-    async def generate_search_query(self, user_text: str) -> Tuple[str, Dict[str, str]]:
+    async def generate_search_query(self, user_text: str) -> tuple[str, dict[str, str]]:
         """
         Self-Querying Router (Phase 2 — Pre-Retrieval).
 
@@ -236,7 +236,7 @@ class LLMService:
             return user_text, {}
 
     async def generate_episodic_summary(
-        self, conversation_block: List[Dict[str, str]]
+        self, conversation_block: list[dict[str, str]]
     ) -> str:
         """
         Episodic Summarization (Phase 2 — Post-Retrieval).

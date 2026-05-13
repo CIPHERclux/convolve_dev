@@ -1,40 +1,37 @@
 """Chat endpoints — text and audio."""
 
+import asyncio
 import os
 import uuid
-import numpy as np
-from fastapi import APIRouter, HTTPException, UploadFile, File, Form
 
-from app.models.schemas import TextChatRequest, ChatResponse
-from app.config import settings
-from app.utils.media_processor import MediaProcessor
-from app.utils.logger import get_logger
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 from openai import OpenAI
+
+from app.api.dependencies import get_orchestrator
+from app.config import settings
+from app.models.schemas import ChatResponse, TextChatRequest
+from app.services.orchestrator import OrchestrationService
+from app.utils.logger import get_logger
+from app.utils.media_processor import MediaProcessor
 
 log = get_logger("api.chat")
 
 router = APIRouter(prefix="/api/v1/chat", tags=["chat"])
 
-# Will be injected by dependencies
-_orchestrator = None
 _media = MediaProcessor()
-
-def set_orchestrator(orch):
-    global _orchestrator
-    _orchestrator = orch
 
 
 @router.post("/text", response_model=ChatResponse)
-async def chat_text(request: TextChatRequest):
+async def chat_text(
+    request: TextChatRequest,
+    orchestrator: OrchestrationService = Depends(get_orchestrator),
+):
     """Process a text-only message."""
-    if not _orchestrator:
-        raise HTTPException(status_code=500, detail="Orchestrator not initialized")
-
-    session = _orchestrator.session_mgr.get_session(request.session_id)
+    session = orchestrator.session_mgr.get_session(request.session_id)
     if not session:
         raise HTTPException(status_code=404, detail="Session not found")
 
-    return await _orchestrator.process_text_turn(
+    return await orchestrator.process_text_turn(
         session_id=request.session_id,
         text=request.text,
     )
@@ -45,12 +42,10 @@ async def chat_audio(
     session_id: str = Form(...),
     text: str = Form(default=""),
     audio: UploadFile = File(...),
+    orchestrator: OrchestrationService = Depends(get_orchestrator),
 ):
     """Process an audio file upload with optional text."""
-    if not _orchestrator:
-        raise HTTPException(status_code=500, detail="Orchestrator not initialized")
-
-    session = _orchestrator.session_mgr.get_session(session_id)
+    session = orchestrator.session_mgr.get_session(session_id)
     if not session:
         raise HTTPException(status_code=404, detail="Session not found")
 
@@ -63,8 +58,8 @@ async def chat_audio(
         with open(temp_path, "wb") as f:
             f.write(content)
 
-        # Load audio
-        audio_array, sr = _media.load_audio_file(temp_path)
+        # Load audio — offloaded to thread pool (librosa is CPU-bound)
+        audio_array, sr = await asyncio.to_thread(_media.load_audio_file, temp_path)
 
         if audio_array is None:
             raise HTTPException(status_code=400, detail="Could not process audio file")
@@ -90,7 +85,7 @@ async def chat_audio(
                 log.error(f"Transcription failed: {e}")
                 user_text = "[Audio message could not be transcribed]"
 
-        return await _orchestrator.process_audio_turn(
+        return await orchestrator.process_audio_turn(
             session_id=session_id,
             text=user_text,
             audio_array=audio_array,

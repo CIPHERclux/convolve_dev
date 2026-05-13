@@ -10,13 +10,17 @@ KEY ARCHITECTURAL CHANGES (Phase 1 + 2):
 """
 
 import uuid
-from typing import List, Dict, Any, Optional
 from datetime import datetime
+from typing import Any
 
 from qdrant_client import QdrantClient
 from qdrant_client.http.models import (
-    VectorParams, Distance, PointStruct,
-    Filter, FieldCondition, MatchValue,
+    Distance,
+    FieldCondition,
+    Filter,
+    MatchValue,
+    PointStruct,
+    VectorParams,
 )
 
 from app.config import settings
@@ -46,7 +50,7 @@ class MemoryController:
     def __init__(self, user_id: str):
         self.user_id = user_id
         self.collection = settings.QDRANT_COLLECTION
-        self.client: Optional[QdrantClient] = None
+        self.client: QdrantClient | None = None
         self._connect()
 
     def _connect(self):
@@ -86,7 +90,7 @@ class MemoryController:
     def store_turn(
         self,
         text: str,
-        embedding: List[float],
+        embedding: list[float],
         biomarkers: BiomarkerPayload,
         turn_number: int,
         session_id: str,
@@ -122,7 +126,7 @@ class MemoryController:
     def store_episodic_summary(
         self,
         summary_text: str,
-        embedding: List[float],
+        embedding: list[float],
         session_id: str,
         turn_range: str = "",
     ):
@@ -155,12 +159,12 @@ class MemoryController:
 
     def search(
         self,
-        query_embedding: List[float],
+        query_embedding: list[float],
         limit: int = 5,
         score_threshold: float = 0.3,
-        type_filter: Optional[str] = None,
-        emotion_filter: Optional[str] = None,
-    ) -> List[Dict[str, Any]]:
+        type_filter: str | None = None,
+        emotion_filter: str | None = None,
+    ) -> list[dict[str, Any]]:
         """
         Semantic search — ONLY uses embedding distance.
         Filters (type, emotion) are applied as metadata filters.
@@ -214,9 +218,9 @@ class MemoryController:
 
     def build_context(
         self,
-        query_embedding: List[float],
+        query_embedding: list[float],
         limit: int = 5,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Build retrieval context for the LLM.
         Searches both turns and episodic summaries.
@@ -232,7 +236,7 @@ class MemoryController:
             "episodic_summaries": episodes,
         }
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         if self.client is None:
             return {"connected": False}
         try:

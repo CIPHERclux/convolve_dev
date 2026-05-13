@@ -8,17 +8,17 @@ KEY ARCHITECTURAL CHANGE (Phase 1 — Decoupled Extraction):
   • Biomarkers are attached as payload for LLM context
 """
 
+
 import numpy as np
-from typing import Dict, Any, Optional
 
 from app.config import settings
-from app.models.model_registry import ModelRegistry
-from app.models.schemas import ExtractionResult, BiomarkerPayload
 from app.extraction.acoustic_engine import AcousticEngine
 from app.extraction.linguistic_engine import LinguisticEngine
 from app.extraction.special_signals import SpecialSignalsEngine
-from app.utils.media_processor import MediaProcessor
+from app.models.model_registry import ModelRegistry
+from app.models.schemas import BiomarkerPayload, ExtractionResult
 from app.utils.logger import get_logger
+from app.utils.media_processor import MediaProcessor
 
 log = get_logger("extraction.engine")
 
@@ -42,9 +42,9 @@ class FeatureEngine:
     def extract(
         self,
         text: str = "",
-        audio_array: Optional[np.ndarray] = None,
+        audio_array: np.ndarray | None = None,
         modality: str = "text",
-        last_system_end_time: Optional[str] = None,
+        last_system_end_time: str | None = None,
     ) -> ExtractionResult:
         """
         Extract all features from input.

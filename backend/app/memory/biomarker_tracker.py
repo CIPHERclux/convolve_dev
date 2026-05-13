@@ -5,10 +5,11 @@ Simplified: removed trajectory_matcher dependency (trajectory vectors killed).
 Masking detection preserved — this is the core value of the system.
 """
 
-import numpy as np
-from typing import List, Dict, Any, Optional
 from collections import deque
 from datetime import datetime
+from typing import Any
+
+import numpy as np
 
 from app.config import settings
 from app.utils.logger import get_logger
@@ -44,7 +45,7 @@ class BiomarkerTracker:
 
         self.sig_threshold = 0.15  # significant change threshold
 
-    def add_turn(self, biomarker: List[float], modality: str = "text", turn: int = 0):
+    def add_turn(self, biomarker: list[float], modality: str = "text", turn: int = 0):
         """Add a new turn's biomarker to history."""
         vec = list(biomarker)
         while len(vec) < settings.BIOMARKER_DIM:
@@ -56,7 +57,7 @@ class BiomarkerTracker:
         self.timestamps.append(datetime.now())
         self.turn_numbers.append(turn)
 
-    def get_delta(self) -> Dict[str, Any]:
+    def get_delta(self) -> dict[str, Any]:
         """Get change from previous turn."""
         if len(self.history) < 2:
             return {"has_delta": False}
@@ -82,7 +83,7 @@ class BiomarkerTracker:
             "magnitude": float(np.linalg.norm(delta)),
         }
 
-    def get_trend(self, n: int = 5) -> Dict[str, Any]:
+    def get_trend(self, n: int = 5) -> dict[str, Any]:
         """Analyze trend over recent turns."""
         recent = list(self.history)[-n:]
         if len(recent) < 2:
@@ -110,7 +111,7 @@ class BiomarkerTracker:
             "turns_analyzed": len(recent),
         }
 
-    def detect_masking(self) -> Dict[str, Any]:
+    def detect_masking(self) -> dict[str, Any]:
         """
         Detect contradictions between voice biomarkers and linguistic sentiment.
         THIS IS THE CORE OF THE SYSTEM — where masking detection lives.
@@ -218,7 +219,7 @@ class BiomarkerTracker:
 
         return "\n".join(lines)
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         return {
             "history_length": len(self.history),
             "modalities_seen": list(set(self.modalities)),

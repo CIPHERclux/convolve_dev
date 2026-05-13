@@ -10,10 +10,9 @@ import os
 import subprocess
 import tempfile
 from pathlib import Path
-from typing import Tuple, Optional
 
-import numpy as np
 import librosa
+import numpy as np
 
 from app.config import settings
 from app.utils.logger import get_logger
@@ -29,7 +28,7 @@ class MediaProcessor:
 
     # ── Public API ───────────────────────────────────────────────────────
 
-    def load_audio_file(self, filepath: str) -> Tuple[Optional[np.ndarray], int]:
+    def load_audio_file(self, filepath: str) -> tuple[np.ndarray | None, int]:
         """
         Load any audio file → mono float32 numpy array.
 
@@ -72,7 +71,7 @@ class MediaProcessor:
         log.info(f"Audio loaded: {len(audio):,} samples, {duration:.2f}s")
         return audio, sr
 
-    def extract_audio_from_video(self, video_path: str) -> Tuple[Optional[np.ndarray], int]:
+    def extract_audio_from_video(self, video_path: str) -> tuple[np.ndarray | None, int]:
         """Extract audio track from video file via ffmpeg."""
         return self._load_via_ffmpeg(video_path)
 
@@ -120,7 +119,7 @@ class MediaProcessor:
 
     # ── Private Loading Methods ──────────────────────────────────────────
 
-    def _load_librosa(self, filepath: str) -> Tuple[Optional[np.ndarray], int]:
+    def _load_librosa(self, filepath: str) -> tuple[np.ndarray | None, int]:
         """Direct librosa load for natively supported formats."""
         try:
             audio, sr = librosa.load(filepath, sr=None, mono=True)
@@ -131,7 +130,7 @@ class MediaProcessor:
             log.warning(f"librosa failed: {e}")
             return self._load_via_ffmpeg(filepath)
 
-    def _load_via_ffmpeg(self, filepath: str) -> Tuple[Optional[np.ndarray], int]:
+    def _load_via_ffmpeg(self, filepath: str) -> tuple[np.ndarray | None, int]:
         """Convert any audio/video to WAV via ffmpeg, then load."""
         tmp_path = None
         try:

@@ -7,11 +7,9 @@ Refactored from the original kairos/extraction/acoustic_engine.py:
 - Clean error handling
 """
 
-import numpy as np
-from typing import Optional
 
 import librosa
-from scipy import signal as scipy_signal
+import numpy as np
 
 from app.config import settings
 from app.utils.logger import get_logger

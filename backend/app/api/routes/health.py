@@ -1,10 +1,10 @@
 """Health check endpoint."""
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter
 
-from app.models.schemas import HealthResponse
-from app.models.model_registry import ModelRegistry
 from app.config import settings
+from app.models.model_registry import ModelRegistry
+from app.models.schemas import HealthResponse
 
 router = APIRouter(tags=["health"])
 

@@ -6,7 +6,6 @@ twice (feature_engine + colbert_encoder), wasting ~500MB.  Now loaded once.
 """
 
 import threading
-from typing import Optional, Any
 
 from app.utils.logger import get_logger
 

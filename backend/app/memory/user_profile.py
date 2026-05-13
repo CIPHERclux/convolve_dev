@@ -5,10 +5,10 @@ Simplified from original: same extraction logic, cleaner structure.
 """
 
 import json
-import re
 import os
-from typing import Dict, List, Optional, Any
+import re
 from datetime import datetime
+from typing import Any
 
 from app.config import settings
 from app.utils.logger import get_logger
@@ -24,7 +24,7 @@ class UserProfile:
         os.makedirs(settings.PROFILES_DIR, exist_ok=True)
         self.path = os.path.join(settings.PROFILES_DIR, f"{user_id}_profile.json")
 
-        self.facts: Dict[str, Any] = {
+        self.facts: dict[str, Any] = {
             "name": None, "pronouns": None, "age": None,
             "location": None, "occupation": None, "school": None,
             "relationships": {},
@@ -67,7 +67,7 @@ class UserProfile:
         except Exception as e:
             log.warning(f"Could not save profile: {e}")
 
-    def extract_facts(self, text: str) -> List[Dict[str, Any]]:
+    def extract_facts(self, text: str) -> list[dict[str, Any]]:
         """Extract facts from user text."""
         extracted = []
         if not text or len(text.strip()) < 2:
@@ -116,7 +116,7 @@ class UserProfile:
             self.facts["custom_facts"][key] = value
         self._save()
 
-    def get_name(self) -> Optional[str]:
+    def get_name(self) -> str | None:
         return self.facts.get("name")
 
     def get_summary_for_llm(self) -> str:
@@ -143,13 +143,13 @@ class UserProfile:
             return ""
         return "=== USER PROFILE ===\n" + "\n".join(lines)
 
-    def get_all_facts(self) -> Dict[str, Any]:
+    def get_all_facts(self) -> dict[str, Any]:
         return {k: v for k, v in self.facts.items()
                 if v and (not isinstance(v, (list, dict)) or len(v) > 0)}
 
     # ── Extraction helpers ───────────────────────────────────────────────
 
-    def _extract_name(self, text: str) -> Optional[str]:
+    def _extract_name(self, text: str) -> str | None:
         patterns = [
             r"(?:my name is|i'm|i am|call me|they call me)\s+([A-Z][a-z]+)",
             r"^([A-Z][a-z]+)(?:\s+here)?[!.]?\s*$",
@@ -177,7 +177,7 @@ class UserProfile:
             and not any(c.isdigit() for c in name)
         )
 
-    def _extract_age(self, text: str) -> Optional[int]:
+    def _extract_age(self, text: str) -> int | None:
         patterns = [
             r"(?:i'm|i am|im)\s+(\d{1,2})\s*(?:years?\s*old|yo|y/o)",
             r"(\d{1,2})\s*(?:years?\s*old|yo|y/o)",
@@ -191,7 +191,7 @@ class UserProfile:
                     return age
         return None
 
-    def _extract_location(self, text: str) -> Optional[str]:
+    def _extract_location(self, text: str) -> str | None:
         patterns = [
             r"(?:i live in|i'm from|i am from|living in|based in|moved to)\s+([A-Z][a-zA-Z\s,]+?)(?:\.|,|!|\?|$)",
         ]
@@ -203,6 +203,6 @@ class UserProfile:
                     return loc
         return None
 
-    def _extract_diagnoses(self, text: str) -> List[str]:
+    def _extract_diagnoses(self, text: str) -> list[str]:
         pattern = r"(?:i have|diagnosed with|i've been diagnosed with|suffering from|i struggle with)\s+(depression|anxiety|bipolar|bipolar disorder|bpd|borderline|ptsd|ocd|adhd|add|social anxiety|panic disorder|insomnia)"
         return [m.lower() for m in re.findall(pattern, text, re.IGNORECASE)]

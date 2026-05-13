@@ -5,9 +5,9 @@ Refactored: uses ModelRegistry for VADER, structured logging.
 """
 
 import re
-import numpy as np
-from typing import Optional, List
 from datetime import datetime
+
+import numpy as np
 
 from app.config import settings
 from app.models.model_registry import ModelRegistry
@@ -69,7 +69,7 @@ class LinguisticEngine:
         self._p_neg = [(re.compile(p, re.IGNORECASE), s) for p, s in neg]
         self._p_pos = [(re.compile(p, re.IGNORECASE), s) for p, s in pos]
 
-    def extract(self, text: str, last_system_end_time: Optional[str] = None) -> np.ndarray:
+    def extract(self, text: str, last_system_end_time: str | None = None) -> np.ndarray:
         """Extract all 8 linguistic features."""
         features = np.zeros(8, dtype=np.float32)
         if not text or not text.strip():
@@ -96,24 +96,24 @@ class LinguisticEngine:
 
     # ── Tokenization ─────────────────────────────────────────────────────
 
-    def _tokenize(self, text: str) -> List[str]:
+    def _tokenize(self, text: str) -> list[str]:
         text = re.sub(r"[^\w\s']", " ", text.lower())
         return [w for w in text.split() if w]
 
-    def _sent_tokenize(self, text: str) -> List[str]:
+    def _sent_tokenize(self, text: str) -> list[str]:
         sentences = re.split(r"[.!?]+", text)
         return [s.strip() for s in sentences if s.strip()]
 
     # ── Feature Extractors ───────────────────────────────────────────────
 
-    def _absolutist_index(self, words: List[str]) -> float:
+    def _absolutist_index(self, words: list[str]) -> float:
         if not words:
             return 0.0
         count = sum(1 for w in words if w in self.absolutist_words)
         ratio = count / len(words)
         return float(np.clip((ratio - 0.02) / 0.03, -1, 1))
 
-    def _i_ratio(self, words: List[str]) -> float:
+    def _i_ratio(self, words: list[str]) -> float:
         if not words:
             return 0.0
         i_words = {"i", "i'm", "i've", "i'll", "i'd", "me", "my", "mine", "myself"}
@@ -121,7 +121,7 @@ class LinguisticEngine:
         ratio = count / len(words)
         return float(np.clip((ratio - 0.08) / 0.07, -1, 1))
 
-    def _response_latency(self, last_time_str: Optional[str]) -> float:
+    def _response_latency(self, last_time_str: str | None) -> float:
         if not last_time_str:
             return 0.0
         try:
@@ -137,13 +137,13 @@ class LinguisticEngine:
         except Exception:
             return 0.0
 
-    def _lexical_density(self, words: List[str]) -> float:
+    def _lexical_density(self, words: list[str]) -> float:
         if not words or len(words) < 3:
             return 0.0
         ratio = len(set(words)) / len(words)
         return float(np.clip((ratio - 0.7) / 0.15, -1, 1))
 
-    def _past_tense_ratio(self, words: List[str]) -> float:
+    def _past_tense_ratio(self, words: list[str]) -> float:
         if not words:
             return 0.0
         past = {"was", "were", "had", "did", "went", "said", "got", "made",
@@ -153,7 +153,7 @@ class LinguisticEngine:
         ratio = count / len(words)
         return float(np.clip((ratio - 0.07) / 0.05, -1, 1))
 
-    def _filler_density(self, text: str, words: List[str]) -> float:
+    def _filler_density(self, text: str, words: list[str]) -> float:
         if not words:
             return 0.0
         text_lower = text.lower()
@@ -207,7 +207,7 @@ class LinguisticEngine:
         final = 0.6 * vader_score + 0.4 * word_score
         return float(np.clip(final, -1.0, 1.0))
 
-    def _rumination(self, text: str, words: List[str], sentences: List[str]) -> float:
+    def _rumination(self, text: str, words: list[str], sentences: list[str]) -> float:
         if not words or len(words) < 5:
             return 0.0
         score = 0.0

@@ -4,8 +4,8 @@ Special Signals Engine — laughter, crying, sigh, strain detection.
 Conservative thresholds — requires multiple indicators for confident detection.
 """
 
-import numpy as np
 import librosa
+import numpy as np
 
 from app.config import settings
 from app.utils.logger import get_logger

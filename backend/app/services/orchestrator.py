@@ -5,22 +5,23 @@ Routes requests through services. No business logic lives here.
 """
 
 import asyncio
+
 import numpy as np
-from typing import Optional
 
 from app.config import settings
-from app.models.schemas import (
-    ChatResponse, ExtractionResult, BiomarkerPayload, ToolCall,
-)
-from app.models.model_registry import ModelRegistry
 from app.extraction.feature_engine import FeatureEngine
-from app.memory.memory_controller import MemoryController
-from app.memory.biomarker_tracker import BiomarkerTracker
 from app.memory.baseline_manager import BaselineManager
+from app.memory.biomarker_tracker import BiomarkerTracker
+from app.memory.memory_controller import MemoryController
 from app.memory.user_profile import UserProfile
+from app.models.model_registry import ModelRegistry
+from app.models.schemas import (
+    ChatResponse,
+    ToolCall,
+)
 from app.services.llm_service import LLMService
 from app.services.safety_service import SafetyService
-from app.services.session_manager import SessionManager, Session
+from app.services.session_manager import Session, SessionManager
 from app.utils.logger import get_logger
 
 log = get_logger("services.orchestrator")
@@ -88,7 +89,7 @@ class OrchestrationService:
         self,
         session_id: str,
         text: str,
-        audio_array: Optional[np.ndarray],
+        audio_array: np.ndarray | None,
         modality: str,
     ) -> ChatResponse:
         """Core processing pipeline."""
@@ -106,8 +107,9 @@ class OrchestrationService:
 
         session.add_user_message(text)
 
-        # ── 1. Feature extraction ────────────────────────────────────────
-        extraction = self.feature_engine.extract(
+        # ── 1. Feature extraction (CPU-bound — offloaded to thread pool) ───
+        extraction = await asyncio.to_thread(
+            self.feature_engine.extract,
             text=text,
             audio_array=audio_array,
             modality=modality,

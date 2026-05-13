@@ -1,250 +1,224 @@
-# 🧠 Kairos — Multimodal Emotional Memory for Mental Health Support
+# Kairos — Multimodal Mental Health Support System
 
-**Kairos** is a **multimodal mental health support system** that detects *hidden emotional patterns over time* by fusing **what a user says**, **how they say it**, and **how those signals evolve temporally**.
+A production-grade mental health support platform that analyzes **what users say** and **how they say it**, combining natural language processing with acoustic biomarker analysis to detect hidden emotional patterns over time.
 
-Unlike text-only chatbots, Kairos treats every interaction as a **persistent emotional moment**, storing it in a structured memory that enables *longitudinal reasoning, associative recall, and early risk detection*.
+Built with **FastAPI**, **React**, and **Qdrant** (vector database), featuring real-time crisis detection, cross-modal masking detection, and persistent emotional memory.
 
-> **Core idea:** Mental health signals often hide in *patterns*, not single messages.  
-> Kairos is built to remember and reflect those patterns back to the user.
-
----
-
-## ✨ Key Capabilities
-
-- **Multimodal Understanding**
-  - Text semantics (topics, intent, linguistic markers)
-  - Acoustic-emotional biomarkers (prosody, pauses, jitter, sentiment)
-  - Temporal trajectories (emotional evolution across turns)
-
-- **Persistent Emotional Memory**
-  - Remembers emotional context across turns and sessions
-  - Detects repetition, escalation, and recovery patterns
-
-- **Masked Emotion Detection**
-  - Identifies contradictions between *content* and *delivery*
-  - Example: *“I’m fine”* + flat prosody + low sentiment → potential distress
-
-- **Associative Recall (Graph-RAG)**
-  - Surfaces emotionally related memories (`friend → birthday → guilt`)
-  - Enables contextual reflection instead of keyword recall
-
-- **Safety-Aware Reasoning**
-  - Dedicated crisis detection pipeline
-  - Salience-based memory prioritization
-  - Conservative, supportive interventions (no diagnosis)
+[![CI](https://github.com/YOUR_USERNAME/kairos/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_USERNAME/kairos/actions)
 
 ---
 
+## Architecture
 
-## 🧩 System Architecture (High-Level)
-
-Kairos follows a **four-layer architecture** designed for clarity, extensibility, and safety.
-
-### Architecture Overview
-
-```mermaid
-flowchart TD
-    A["Input & Capture\n(Text · Audio · Video)"]
-    B["Multimodal Understanding\nSemantic · Acoustic · Temporal"]
-    C["Memory & Retrieval\nQdrant · Graph-RAG"]
-    D["Reasoning & Response\nSafety · Pattern Detection · Reflection"]
-
-    A --> B
-    B --> C
-    C --> D
 ```
-**1. Input & Capture**
-- Accepts user interactions via **text, audio, or video**, preserving raw signals for downstream analysis.
-
-**2. Multimodal Understanding**
-- Extracts **semantic meaning**, **acoustic biomarkers** (prosody, pauses, sentiment), and **temporal changes** across turns.
-
-**3. Memory & Retrieval (Qdrant + Graph-RAG)**
-- Stores each interaction as a **multimodal moment vector** and retrieves relevant past moments using **hybrid multi-vector search and associative expansion**.
-
-**4. Reasoning & Response Generation**
-- Performs **safety checks**, detects **emotional patterns over time**, and generates a **supportive, context-aware response** rather than a single-turn reply.
-Each user interaction is stored as a **Moment Vector** and becomes part of a persistent emotional timeline.
-
----
-
-## 🧠 Moment Vector (Core Data Model)
-
-Every interaction is represented as a **multimodal Moment Vector**:
-
-| Channel     | Description                                  | Dimensionality |
-|------------|----------------------------------------------|----------------|
-| Semantic   | What is said (meaning, topics)               | 384-D          |
-| Acoustic   | How it is said (prosody, voice markers)      | 32-D           |
-| Trajectory | Emotional evolution across turns             | 160-D          |
-| Sparse     | Explicit crisis / keyword signals             | Variable       |
-
-All vectors are stored **together** as a single memory unit.
-
----
-
-## 🚀 Why Qdrant Is Essential (Not Optional)
-
-Kairos **cannot exist** without Qdrant’s architecture.  
-This is not a tooling choice — it is an architectural dependency.
-
-### 1️⃣ Native Multi-Vector Storage
-
-Kairos stores **multiple orthogonal vectors per memory point** (semantic, acoustic, trajectory).
-
-Qdrant is one of the *very few* vector databases that supports this natively.
-
-> Example query:  
-> *“Find moments where the user sounded anxious, regardless of topic.”*
-
-This is **impossible** in single-vector systems.
+┌─────────────────────────────────────────────────────────────┐
+│                      React Frontend                         │
+│         Chat UI · Voice Recording · State Visualizer        │
+└────────────────────────┬────────────────────────────────────┘
+                         │ REST API
+┌────────────────────────▼────────────────────────────────────┐
+│                    FastAPI Backend                           │
+│                                                             │
+│  ┌──────────┐  ┌──────────────┐  ┌────────────────────┐    │
+│  │  Routes   │  │ Orchestrator │  │   Safety Service   │    │
+│  │ (DI via   │──│  (async      │──│  (deterministic    │    │
+│  │ Depends())│  │  processing) │  │   crisis detection)│    │
+│  └──────────┘  └──────┬───────┘  └────────────────────┘    │
+│                       │                                     │
+│  ┌────────────────────▼─────────────────────────────────┐  │
+│  │              Feature Extraction Engine                │  │
+│  │  Acoustic (librosa) · Linguistic (VADER/regex) ·     │  │
+│  │  Special Signals (laughter/crying/sighs)             │  │
+│  └──────────────────────────────────────────────────────┘  │
+│                       │                                     │
+│  ┌────────────────────▼─────────────────────────────────┐  │
+│  │                  Memory Layer                         │  │
+│  │  Qdrant (384-dim vectors) · User Profiles (JSON) ·   │  │
+│  │  Biomarker Tracker · Baseline Manager (Welford's)    │  │
+│  └──────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────┘
+```
 
 ---
 
-### 2️⃣ Hybrid Retrieval with Reciprocal Rank Fusion (RRF)
+## Key Features
 
-Kairos runs **parallel searches** across:
-- semantic similarity
-- acoustic similarity
-- trajectory similarity
-- sparse crisis signals
+### Multimodal Analysis
+- **28-dimensional biomarker vector** extracted per turn (acoustic, linguistic, visual, special signals)
+- Acoustic features: jitter, shimmer, F0 variance, speech rate, pause rate, TEO, HNR
+- Linguistic features: absolutist index, I-ratio, lexical density, rumination score, sentiment
+- Special signals: laughter, crying, sighing, vocal strain detection
 
-Qdrant’s **Prefetch API + native RRF** fuses these rankings **server-side**, in one round-trip.
+### Cross-Modal Masking Detection
+Identifies contradictions between *what users say* and *how they sound*:
+- Voice tremor + positive text → hidden anxiety
+- Flat pitch + high volume → suppressed emotions
+- Laughter + crying co-occurrence → complex emotional state
 
-Without Qdrant:
-- multiple sequential queries
-- client-side fusion logic
-- higher latency and brittle heuristics
+### Persistent Emotional Memory
+- Semantic search over past interactions (Qdrant, cosine similarity)
+- Per-user baseline calibration via **Welford's online algorithm**
+- Delta tracking: significant biomarker changes between turns
+- Distress trend analysis over rolling windows
 
----
-
-### 3️⃣ Binary Quantization (Edge-Ready Memory)
-
-Semantic vectors are binary-quantized:
-
-- **1536 bytes → ~48 bytes per vector**
-- ~32× memory reduction
-- Enables **local / edge deployment**
-- Preserves high recall via two-stage search
-
-This is critical for **privacy-sensitive mental health data**.
+### Safety-First Design
+- Deterministic regex-based crisis detection (critical/high/moderate/none)
+- Biomarker-driven risk escalation (crying > 0.5, sentiment < -0.7)
+- Runs **before** LLM calls — never delegates safety to a language model
 
 ---
 
-### 4️⃣ Graph-RAG via Prefetch
+## Tech Stack
 
-Kairos maintains an **entity–emotion graph** that expands memory queries: 
-“best friend”
-↓
-“birthday” → “guilt”
-Qdrant executes these expansions **in parallel** using Prefetch and merges them with RRF, enabling **associative recall**.
-
----
-
-## 🧠 Three-Layer Memory Design
-
-Kairos uses a **cognitive memory model**, not a flat database:
-
-### Layer 1 — User Profile (Facts)
-- Name, relationships, stable attributes
-- Deterministic, O(1) access
-
-### Layer 2 — Episodic Memory (Qdrant)
-- Multimodal Moment Vectors
-- Searchable across sessions
-- Supports similarity + filtering
-
-### Layer 3 — Entity–Emotion Graph
-- Associative links between entities and emotions
-- Drives Graph-RAG expansion
-- Continuously updated from memory usage
-
-This bidirectional interaction is a **core innovation**.
+| Layer | Technology | Purpose |
+|-------|-----------|---------|
+| Frontend | React 19 + Vite | Chat UI with voice recording |
+| Backend | FastAPI + Uvicorn | Async API server |
+| ML/NLP | sentence-transformers, librosa, VADER | Feature extraction |
+| Memory | Qdrant | Vector similarity search |
+| LLM | OpenAI / Groq (configurable) | Response generation |
+| CI/CD | GitHub Actions + ruff + pytest | Automated linting & testing |
 
 ---
 
-## 🔍 What Makes Kairos Different
+## Design Decisions
 
-| Traditional Systems | Kairos |
-|--------------------|--------|
-| Text-only           | Multimodal (text + audio + time) |
-| Stateless           | Persistent emotional memory |
-| Literal recall      | Associative recall |
-| Reactive            | Pattern-aware & reflective |
-| Single-turn logic   | Longitudinal reasoning |
-
-Kairos doesn’t just respond — it **reflects emotional patterns** the user may not consciously notice.
+| Decision | Rationale |
+|----------|-----------|
+| **FastAPI Dependency Injection** over global state | Testability, thread safety, explicit dependencies |
+| **`asyncio.to_thread()`** for audio processing | Prevents event loop starvation from CPU-bound librosa/DSP work |
+| **Deterministic safety checks** (regex, not LLM) | Crisis detection must be predictable and auditable |
+| **Single 384-dim vector** (not multi-vector) | Simplicity over marginal recall gains; acoustic features stored as payload metadata |
+| **Welford's algorithm** for baselines | O(1) memory, numerically stable, no stored history needed |
+| **No Celery/Redis** | Lightweight enough for local dev; `to_thread()` sufficient for current scale |
 
 ---
-## 🚀 How to Run (Google Colab)
 
-Kairos is designed to run entirely inside **Google Colab** with minimal setup.
+## Local Development
 
 ### Prerequisites
-- A Google account (for Colab access)
-- The project ZIP file (download link provided below)
+- Python 3.10+
+- Node.js 18+
+- Docker (optional, for Qdrant)
+
+### Backend
+
+```bash
+cd backend
+python -m venv venv
+source venv/bin/activate  # or venv\Scripts\activate on Windows
+pip install -r requirements.txt
+
+# Configure environment
+cp .env.example .env
+# Edit .env with your LLM API key
+
+# Run
+uvicorn app.main:app --reload --port 8000
+```
+
+### Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+### Qdrant (Optional)
+
+```bash
+docker compose up -d
+```
+
+The backend gracefully degrades without Qdrant — memory features are disabled but chat still works.
 
 ---
 
-### Step-by-Step Instructions
+## Testing
 
-1. **Download the Project ZIP**
-   - Download the repository ZIP file from the **Google Drive link provided in this README**.
-   - Link :- https://drive.google.com/file/d/1xdb3vwwuVQ0RnN1_RnpbdHS46xuZsOyD/view?usp=sharing
-   - Do **not** extract the ZIP locally.
+```bash
+cd backend
+pip install pytest ruff
 
-2. **Open Google Colab**
-   - Visit: https://colab.research.google.com
-   - Click **New Notebook**
+# Run tests (74 tests across safety, linguistics, profile extraction)
+python -m pytest tests/ -v
 
-3. **Copy the Starter Cell**
-   - Open the repository ZIP locally (or preview it on GitHub).
-   - Locate the file named `colab_starter_cell.py` (or the starter cell section in the README).
-   - Copy the entire contents of the starter cell.
+# Lint
+ruff check app/ tests/
+```
 
-4. **Paste and Run**
-   - Paste the copied cell into the **first cell** of the Colab notebook.
-   - Run the cell.
+### Test Coverage
 
-5. **Upload the ZIP When Prompted**
-   - When prompted by the notebook, upload the **same ZIP file** you downloaded earlier.
-   - The system will automatically extract dependencies and initialize Kairos.
-
-6. **Start Interacting**
-   - Once setup completes, follow the on-screen instructions to interact using:
-     - Text
-     - Audio
-     - Video
+| Module | Tests | What's Covered |
+|--------|-------|---------------|
+| `SafetyService` | 28 | Crisis patterns (critical/high/moderate), biomarker escalation, edge cases |
+| `LinguisticEngine` | 14 | All 8 features, output shape, value bounds |
+| `UserProfile` | 32 | Name/age/location/diagnosis extraction, deduplication, persistence |
 
 ---
 
-### Notes
-- No local environment setup is required.
-- Qdrant runs in **local embedded mode** inside Colab.
-- All processing happens within the Colab session.
-- Use Colab T4 for better experience.
-## ⚠️ Prototype Status & Limitations
+## API Endpoints
 
-This repository represents a **research prototype**:
-
-- Some memories may be missed or under-weighted
-- Acoustic features depend on input quality
-- Cold-start sessions lack trajectory history
-- Not a clinical diagnostic tool
-
-These are **known and documented limitations**, not design oversights.
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/v1/session/start` | Start a new chat session |
+| `DELETE` | `/api/v1/session/{id}` | End a session |
+| `POST` | `/api/v1/chat/text` | Send text message |
+| `POST` | `/api/v1/chat/audio` | Send audio file (with transcription) |
+| `GET` | `/api/v1/profile/{user_id}` | Get user profile facts |
+| `GET` | `/health` | Health check + Qdrant status |
 
 ---
 
-## 🔐 Ethics & Safety
+## Project Structure
 
-- Kairos is a **support system**, not therapy
-- Explicit crisis pathways with emergency guidance
-- Conservative language (no diagnoses or certainty)
+```
+backend/
+├── app/
+│   ├── api/
+│   │   ├── dependencies.py      # FastAPI DI providers
+│   │   └── routes/              # chat, session, profile, health
+│   ├── extraction/
+│   │   ├── acoustic_engine.py   # librosa DSP features
+│   │   ├── linguistic_engine.py # VADER + regex features
+│   │   └── feature_engine.py    # Orchestrates extraction
+│   ├── memory/
+│   │   ├── memory_controller.py # Qdrant interaction layer
+│   │   ├── biomarker_tracker.py # Rolling-window analysis
+│   │   ├── baseline_manager.py  # Welford's algorithm
+│   │   └── user_profile.py      # Deterministic fact storage
+│   ├── services/
+│   │   ├── orchestrator.py      # Main coordination service
+│   │   ├── llm_service.py       # LLM with tool calling
+│   │   ├── safety_service.py    # Crisis detection
+│   │   └── session_manager.py   # Session lifecycle
+│   ├── models/
+│   │   ├── schemas.py           # Pydantic request/response models
+│   │   └── model_registry.py    # Thread-safe ML model singleton
+│   └── config.py                # pydantic-settings configuration
+├── tests/                       # pytest suite
+└── pyproject.toml               # ruff + pytest config
+
+frontend/
+├── src/
+│   ├── App.jsx                  # Main chat interface
+│   ├── components/ChatBubble.jsx
+│   └── services/api.js          # API client
+└── package.json
+```
+
+---
+
+## Research Background
+
+This project evolved from a research prototype built for a Qdrant hackathon. The original prototype documentation (Colab instructions, multi-vector architecture, Graph-RAG design) is preserved in [`docs/research-prototype.md`](docs/research-prototype.md).
+
+---
+
+## Ethics & Safety
+
+- Kairos is a **support system**, not therapy or a diagnostic tool
+- Crisis detection uses deterministic rules, not probabilistic LLM outputs
+- Conservative language — no diagnoses, no certainty claims
 - Designed for **privacy-first, local deployment**
-
----
-
-Kairos demonstrates how **vector databases can act as cognitive memory systems**, not just search engines.
-
-By combining **multimodal embeddings**, **associative graphs**, and **temporal reasoning**, it moves mental health AI from **reactive chat** to **reflective support**.

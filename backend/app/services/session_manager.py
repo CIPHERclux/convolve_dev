@@ -2,9 +2,8 @@
 Session Manager — manages session state across API calls.
 """
 
-from typing import Dict, List, Any, Optional
-from datetime import datetime
 import uuid
+from datetime import datetime
 
 from app.utils.logger import get_logger
 
@@ -20,8 +19,8 @@ class Session:
         self.turn_number = 0
         self.created_at = datetime.now()
         self.last_activity = datetime.now()
-        self.history: List[Dict[str, str]] = []  # {role, content}
-        self.last_system_end_time: Optional[str] = None
+        self.history: list[dict[str, str]] = []  # {role, content}
+        self.last_system_end_time: str | None = None
 
     def add_user_message(self, text: str):
         self.history.append({"role": "user", "content": text})
@@ -33,10 +32,10 @@ class Session:
         self.last_system_end_time = datetime.now().isoformat()
         self.last_activity = datetime.now()
 
-    def get_recent_history(self, n: int = 20) -> List[Dict[str, str]]:
+    def get_recent_history(self, n: int = 20) -> list[dict[str, str]]:
         return self.history[-n:]
 
-    def get_conversation_block(self, n: int = 20) -> List[Dict[str, str]]:
+    def get_conversation_block(self, n: int = 20) -> list[dict[str, str]]:
         """Get last N messages for episodic summarization."""
         return self.history[-n:]
 
@@ -45,7 +44,7 @@ class SessionManager:
     """Manages active chat sessions."""
 
     def __init__(self):
-        self.sessions: Dict[str, Session] = {}
+        self.sessions: dict[str, Session] = {}
 
     def create_session(self, user_id: str) -> Session:
         session_id = str(uuid.uuid4())[:8]
@@ -54,7 +53,7 @@ class SessionManager:
         log.info(f"Session created: {session_id} for user {user_id}")
         return session
 
-    def get_session(self, session_id: str) -> Optional[Session]:
+    def get_session(self, session_id: str) -> Session | None:
         return self.sessions.get(session_id)
 
     def end_session(self, session_id: str) -> bool:
@@ -64,5 +63,5 @@ class SessionManager:
             return True
         return False
 
-    def get_active_sessions(self) -> List[str]:
+    def get_active_sessions(self) -> list[str]:
         return list(self.sessions.keys())

@@ -5,11 +5,10 @@ All settings flow from environment variables with sensible defaults.
 Supports: LLM_API_KEY, OPENAI_API_KEY, or GROQ_API_KEY (auto-detected).
 """
 
-import os
 from pathlib import Path
-from pydantic_settings import BaseSettings
+
 from pydantic import model_validator
-from typing import Optional
+from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
@@ -18,14 +17,17 @@ class Settings(BaseSettings):
     # ── App ──────────────────────────────────────────────────────────────
     APP_NAME: str = "Convolve MAS"
     APP_VERSION: str = "0.1.0"
-    DEBUG: bool = True
+    DEBUG: bool = False
     HOST: str = "0.0.0.0"
     PORT: int = 8000
+
+    # ── CORS ─────────────────────────────────────────────────────────────
+    CORS_ORIGINS: list = ["http://localhost:5173", "http://localhost:3000"]
 
     # ── LLM ──────────────────────────────────────────────────────────────
     LLM_API_KEY: str = ""
     LLM_MODEL: str = "gpt-4o-mini"
-    LLM_BASE_URL: Optional[str] = None
+    LLM_BASE_URL: str | None = None
     LLM_MAX_TOKENS: int = 1024
     LLM_TEMPERATURE: float = 0.7
 

@@ -5,9 +5,8 @@ Runs BEFORE LLM call. Fast, deterministic, no LLM dependency.
 """
 
 import re
-from typing import List
 
-from app.models.schemas import SafetyCheck, BiomarkerPayload
+from app.models.schemas import BiomarkerPayload, SafetyCheck
 from app.utils.logger import get_logger
 
 log = get_logger("services.safety")
@@ -53,7 +52,7 @@ class SafetyService:
 
     def check(self, text: str, biomarkers: BiomarkerPayload = None) -> SafetyCheck:
         """Run safety checks on user input."""
-        flags: List[str] = []
+        flags: list[str] = []
         risk_level = "none"
 
         if not text:
