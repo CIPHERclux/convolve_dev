@@ -48,7 +48,7 @@ async def lifespan(app: FastAPI):
     # Shutdown
     log.info("Shutting down…")
     orchestrator: OrchestrationService = app.state.orchestrator
-    for uid, state in orchestrator._user_state.items():
+    for _uid, state in orchestrator._user_state.items():
         state["baseline"].force_save()
     log.info("🔴 Server stopped")
 

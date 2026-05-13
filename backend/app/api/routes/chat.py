@@ -1,6 +1,7 @@
 """Chat endpoints — text and audio."""
 
 import asyncio
+import contextlib
 import os
 import uuid
 
@@ -59,7 +60,7 @@ async def chat_audio(
             f.write(content)
 
         # Load audio — offloaded to thread pool (librosa is CPU-bound)
-        audio_array, sr = await asyncio.to_thread(_media.load_audio_file, temp_path)
+        audio_array, _sr = await asyncio.to_thread(_media.load_audio_file, temp_path)
 
         if audio_array is None:
             raise HTTPException(status_code=400, detail="Could not process audio file")
@@ -94,7 +95,5 @@ async def chat_audio(
     finally:
         # Cleanup temp file
         if os.path.exists(temp_path):
-            try:
+            with contextlib.suppress(OSError):
                 os.remove(temp_path)
-            except OSError:
-                pass

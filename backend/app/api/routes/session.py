@@ -30,7 +30,7 @@ async def end_session(
 ):
     """End a chat session."""
     # Save baselines before ending
-    for uid, s in orchestrator._user_state.items():
+    for _uid, s in orchestrator._user_state.items():
         s["baseline"].force_save()
 
     success = orchestrator.session_mgr.end_session(session_id)

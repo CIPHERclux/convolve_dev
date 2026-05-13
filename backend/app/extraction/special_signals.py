@@ -17,11 +17,11 @@ class SpecialSignalsEngine:
     """
     Extracts 4 special audio signals (indices 24-27 in biomarker vector).
 
-    Features (0.0–1.0 scale):
-        [0] Laughter  — rhythmic energy bursts + pitch jumps
-        [1] Crying    — voice breaks + vocal instability
-        [2] Sigh      — sustained declining energy
-        [3] Strain    — jitter + shimmer + low HNR
+    Features (0.0-1.0 scale):
+        [0] Laughter  - rhythmic energy bursts + pitch jumps
+        [1] Crying    - voice breaks + vocal instability
+        [2] Sigh      - sustained declining energy
+        [3] Strain    - jitter + shimmer + low HNR
     """
 
     def __init__(self):
@@ -122,10 +122,9 @@ class SpecialSignalsEngine:
                     evidence += 0.15
                     indicators += 1
 
-            if af is not None and len(af) >= 2:
-                if af[0] > 0.4 and af[1] > 0.4:
-                    evidence += 0.25
-                    indicators += 1
+            if af is not None and len(af) >= 2 and af[0] > 0.4 and af[1] > 0.4:
+                evidence += 0.25
+                indicators += 1
 
             if indicators >= 2:
                 return min(0.8, 0.1 + evidence)
@@ -145,9 +144,8 @@ class SpecialSignalsEngine:
             score = 0.05
             for i in range(len(rms) - 8):
                 seg = rms[i : i + 8]
-                if all(seg[j] >= seg[j + 1] * 0.9 for j in range(7)):
-                    if np.mean(seg) > 0.15 * np.max(rms):
-                        score = min(0.5, score + 0.15)
+                if all(seg[j] >= seg[j + 1] * 0.9 for j in range(7)) and np.mean(seg) > 0.15 * np.max(rms):
+                    score = min(0.5, score + 0.15)
             return score
         except Exception:
             return 0.05

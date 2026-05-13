@@ -4,6 +4,7 @@ Linguistic Engine — 8 text-based features.
 Refactored: uses ModelRegistry for VADER, structured logging.
 """
 
+import contextlib
 import re
 from datetime import datetime
 
@@ -191,10 +192,8 @@ class LinguisticEngine:
         vader = ModelRegistry.get_vader()
         vader_score = 0.0
         if vader:
-            try:
+            with contextlib.suppress(Exception):
                 vader_score = vader.polarity_scores(text)["compound"]
-            except Exception:
-                pass
 
         # Simple word backup
         pos_words = {"good", "great", "happy", "love", "wonderful", "amazing", "better", "best"}

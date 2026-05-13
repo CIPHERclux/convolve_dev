@@ -6,6 +6,7 @@ Single entry point for all media.  Uses ffmpeg + librosa only.
 Eliminates moviepy dependency (~200MB saved).
 """
 
+import contextlib
 import os
 import subprocess
 import tempfile
@@ -23,7 +24,7 @@ log = get_logger("media_processor")
 class MediaProcessor:
     """Unified audio ingestion — single code path, no fallback chains."""
 
-    def __init__(self, target_sr: int = None):
+    def __init__(self, target_sr: int | None = None):
         self.target_sr = target_sr or settings.AUDIO_SAMPLE_RATE
 
     # ── Public API ───────────────────────────────────────────────────────
@@ -168,7 +169,5 @@ class MediaProcessor:
             return None, self.target_sr
         finally:
             if tmp_path and os.path.exists(tmp_path):
-                try:
+                with contextlib.suppress(OSError):
                     os.remove(tmp_path)
-                except OSError:
-                    pass

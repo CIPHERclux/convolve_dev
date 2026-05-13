@@ -5,7 +5,9 @@ Fixes the duplicate-model-loading problem: SentenceTransformer was loaded
 twice (feature_engine + colbert_encoder), wasting ~500MB.  Now loaded once.
 """
 
+import contextlib
 import threading
+import typing
 
 from app.utils.logger import get_logger
 
@@ -16,7 +18,7 @@ class ModelRegistry:
     """Thread-safe singleton that loads each ML model exactly once."""
 
     _lock = threading.Lock()
-    _models: dict = {}
+    _models: typing.ClassVar[dict] = {}
 
     # ── Semantic Encoder ─────────────────────────────────────────────────
     @classmethod
@@ -43,10 +45,8 @@ class ModelRegistry:
                     try:
                         import nltk
                         for res in ["punkt", "punkt_tab", "vader_lexicon"]:
-                            try:
+                            with contextlib.suppress(Exception):
                                 nltk.download(res, quiet=True)
-                            except Exception:
-                                pass
                         from nltk.sentiment.vader import SentimentIntensityAnalyzer
                         cls._models["vader"] = SentimentIntensityAnalyzer()
                         log.info("VADER loaded ✓")

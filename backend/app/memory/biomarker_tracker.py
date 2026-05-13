@@ -93,11 +93,16 @@ class BiomarkerTracker:
         scores = []
         for b in recent:
             d = 0.0
-            if len(b) > 0:  d += max(0, b[0]) * 0.2    # jitter
-            if len(b) > 1:  d += max(0, b[1]) * 0.15   # shimmer
-            if len(b) > 22: d += max(0, -b[22]) * 0.3  # negative sentiment
-            if len(b) > 23: d += max(0, b[23]) * 0.1   # rumination
-            if len(b) > 25: d += max(0, b[25]) * 0.25  # crying
+            if len(b) > 0:
+                d += max(0, b[0]) * 0.2    # jitter
+            if len(b) > 1:
+                d += max(0, b[1]) * 0.15   # shimmer
+            if len(b) > 22:
+                d += max(0, -b[22]) * 0.3  # negative sentiment
+            if len(b) > 23:
+                d += max(0, b[23]) * 0.1   # rumination
+            if len(b) > 25:
+                d += max(0, b[25]) * 0.25  # crying
             scores.append(min(1.0, d))
 
         change = scores[-1] - scores[0]
@@ -123,44 +128,39 @@ class BiomarkerTracker:
         contradictions = []
 
         # High arousal + positive words = nervous positivity
-        if len(curr) > 22 and len(curr) > 3:
-            if curr[3] > 0.5 and curr[22] > 0.3:
-                contradictions.append({
-                    "type": "nervous_positivity",
-                    "detail": "High vocal energy with positive words — possible anxiety masking",
-                })
+        if len(curr) > 22 and len(curr) > 3 and curr[3] > 0.5 and curr[22] > 0.3:
+            contradictions.append({
+                "type": "nervous_positivity",
+                "detail": "High vocal energy with positive words — possible anxiety masking",
+            })
 
         # Voice tremor + positive sentiment = hidden anxiety
-        if len(curr) > 22 and len(curr) > 0:
-            if curr[0] > 0.4 and curr[22] > 0:
-                contradictions.append({
-                    "type": "hidden_anxiety",
-                    "detail": "Voice tremor despite positive words — possible hidden anxiety",
-                })
+        if len(curr) > 22 and len(curr) > 0 and curr[0] > 0.4 and curr[22] > 0:
+            contradictions.append({
+                "type": "hidden_anxiety",
+                "detail": "Voice tremor despite positive words — possible hidden anxiety",
+            })
 
         # Flat pitch + high volume = suppressed emotions
-        if len(curr) > 3 and len(curr) > 2:
-            if curr[2] < -0.3 and curr[3] > 0.4:
-                contradictions.append({
-                    "type": "suppressed_emotions",
-                    "detail": "Flat pitch despite high volume — possibly suppressing emotions",
-                })
+        if len(curr) > 3 and len(curr) > 2 and curr[2] < -0.3 and curr[3] > 0.4:
+            contradictions.append({
+                "type": "suppressed_emotions",
+                "detail": "Flat pitch despite high volume — possibly suppressing emotions",
+            })
 
         # Crying + laughter = mixed signals
-        if len(curr) > 25 and len(curr) > 24:
-            if curr[24] > 0.3 and curr[25] > 0.3:
-                contradictions.append({
-                    "type": "mixed_signals",
-                    "detail": "Both laughter and crying detected — complex emotional state",
-                })
+        if len(curr) > 25 and len(curr) > 24 and curr[24] > 0.3 and curr[25] > 0.3:
+            contradictions.append({
+                "type": "mixed_signals",
+                "detail": "Both laughter and crying detected — complex emotional state",
+            })
 
         # High jitter + shimmer but positive sentiment
-        if len(curr) > 22 and len(curr) > 1:
-            if curr[0] > 0.3 and curr[1] > 0.3 and curr[22] > 0.2:
-                contradictions.append({
-                    "type": "voice_text_mismatch",
-                    "detail": "Unstable voice paired with positive text — possible masking",
-                })
+        if len(curr) > 22 and len(curr) > 1 and curr[0] > 0.3 and curr[1] > 0.3 and curr[22] > 0.2:
+            contradictions.append({
+                "type": "voice_text_mismatch",
+                "detail": "Unstable voice paired with positive text — possible masking",
+            })
 
         return {
             "detected": len(contradictions) > 0,

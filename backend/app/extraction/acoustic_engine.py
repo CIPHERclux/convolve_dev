@@ -32,7 +32,7 @@ class AcousticEngine:
         [7] Pause Rate   — pauses/min (hesitation, cognitive load)
     """
 
-    def __init__(self, sample_rate: int = None):
+    def __init__(self, sample_rate: int | None = None):
         self.sample_rate = sample_rate or settings.AUDIO_SAMPLE_RATE
 
         # Calibration baselines (neutral speech reference values)
@@ -70,7 +70,7 @@ class AcousticEngine:
 
         try:
             # Extract F0 (pitch)
-            f0, voiced_flag, voiced_probs = librosa.pyin(
+            f0, _voiced_flag, voiced_probs = librosa.pyin(
                 audio, fmin=60, fmax=400,
                 sr=self.sample_rate, frame_length=2048, hop_length=512,
             )
@@ -89,7 +89,7 @@ class AcousticEngine:
             features[7] = self._extract_pause_frequency(audio, len(audio) / self.sample_rate)
 
             names = ["jitter", "shimmer", "f0_var", "loudness", "teo", "hnr", "speech_rate", "pause"]
-            for name, val in zip(names, features):
+            for name, val in zip(names, features, strict=False):
                 log.debug(f"{name}={val:.3f}")
 
         except Exception as e:

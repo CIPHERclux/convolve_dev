@@ -50,6 +50,9 @@ class OrchestrationService:
         # Per-user state (single-user MVP)
         self._user_state = {}
 
+        # Store strong references to background tasks (RUF006)
+        self._background_tasks = set()
+
         log.info("OrchestrationService initialized")
 
     def _get_user_state(self, user_id: str) -> dict:
@@ -137,7 +140,7 @@ class OrchestrationService:
             query_embedding = encoder.encode(search_query, convert_to_numpy=True).tolist()
 
             # Search with optional emotion filter
-            emotion_filter = filters.get("emotion", None)
+            filters.get("emotion", None)
             context = memory.build_context(query_embedding, limit=5)
 
             # Format memory context for LLM
@@ -187,9 +190,11 @@ class OrchestrationService:
             and session.turn_number % settings.EPISODIC_ROLLUP_INTERVAL == 0
             and memory.is_connected()
         ):
-            asyncio.create_task(
+            task = asyncio.create_task(
                 self._create_episodic_summary(session, memory)
             )
+            self._background_tasks.add(task)
+            task.add_done_callback(self._background_tasks.discard)
 
         # ── 9. Masking detection ─────────────────────────────────────────
         masking = tracker.detect_masking()
