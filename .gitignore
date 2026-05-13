@@ -13,3 +13,6 @@ sessions/
 
 .venv/
 backend/.venv/
+venv/
+backend/venv/
+fix_types.py

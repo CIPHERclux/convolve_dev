@@ -90,7 +90,7 @@ class AcousticEngine:
             features[7] = self._extract_pause_frequency(audio, len(audio) / self.sample_rate)
 
             names = ["jitter", "shimmer", "f0_var", "loudness", "teo", "hnr", "speech_rate", "pause"]
-            for name, val in zip(names, features, strict=False):
+            for name, val in zip(names, features):
                 log.debug(f"{name}={val:.3f}")
 
         except Exception as e:
