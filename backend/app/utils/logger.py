@@ -1,10 +1,10 @@
-from typing import Optional
 """
 Structured Logging — replaces 200+ print() statements.
 """
 
 import logging
 import sys
+from typing import Optional
 
 
 def get_logger(name: str, level: Optional[int] = None) -> logging.Logger:

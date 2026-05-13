@@ -25,22 +25,66 @@ class UserProfile:
         self.path = os.path.join(settings.PROFILES_DIR, f"{user_id}_profile.json")
 
         self.facts: dict[str, Any] = {
-            "name": None, "pronouns": None, "age": None,
-            "location": None, "occupation": None, "school": None,
+            "name": None,
+            "pronouns": None,
+            "age": None,
+            "location": None,
+            "occupation": None,
+            "school": None,
             "relationships": {},
-            "diagnoses": [], "medications": [],
-            "goals": [], "main_concerns": [],
+            "diagnoses": [],
+            "medications": [],
+            "goals": [],
+            "main_concerns": [],
             "custom_facts": {},
-            "first_interaction": None, "last_updated": None,
+            "first_interaction": None,
+            "last_updated": None,
             "total_interactions": 0,
         }
 
         self._name_exclusions = {
-            "i", "me", "my", "the", "a", "an", "and", "or", "but", "so", "just",
-            "really", "actually", "basically", "well", "yeah", "yes", "no", "not",
-            "hey", "hi", "hello", "bye", "good", "bad", "fine", "okay", "ok",
-            "happy", "sad", "angry", "scared", "worried", "anxious", "depressed",
-            "tired", "confused", "alone", "lonely", "morning", "evening", "night",
+            "i",
+            "me",
+            "my",
+            "the",
+            "a",
+            "an",
+            "and",
+            "or",
+            "but",
+            "so",
+            "just",
+            "really",
+            "actually",
+            "basically",
+            "well",
+            "yeah",
+            "yes",
+            "no",
+            "not",
+            "hey",
+            "hi",
+            "hello",
+            "bye",
+            "good",
+            "bad",
+            "fine",
+            "okay",
+            "ok",
+            "happy",
+            "sad",
+            "angry",
+            "scared",
+            "worried",
+            "anxious",
+            "depressed",
+            "tired",
+            "confused",
+            "alone",
+            "lonely",
+            "morning",
+            "evening",
+            "night",
         }
 
         self._load()
@@ -144,8 +188,11 @@ class UserProfile:
         return "=== USER PROFILE ===\n" + "\n".join(lines)
 
     def get_all_facts(self) -> dict[str, Any]:
-        return {k: v for k, v in self.facts.items()
-                if v and (not isinstance(v, (list, dict)) or len(v) > 0)}
+        return {
+            k: v
+            for k, v in self.facts.items()
+            if v and (not isinstance(v, (list, dict)) or len(v) > 0)
+        }
 
     # ── Extraction helpers ───────────────────────────────────────────────
 
@@ -171,7 +218,9 @@ class UserProfile:
 
     def _valid_name(self, name: str) -> bool:
         return (
-            name and len(name) >= 2 and len(name) <= 20
+            name
+            and len(name) >= 2
+            and len(name) <= 20
             and name[0].isupper()
             and name.lower() not in self._name_exclusions
             and not any(c.isdigit() for c in name)

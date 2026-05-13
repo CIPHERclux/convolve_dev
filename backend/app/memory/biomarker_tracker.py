@@ -19,15 +19,34 @@ log = get_logger("memory.tracker")
 
 # Feature name mapping
 FEATURE_NAMES = {
-    0: "jitter", 1: "shimmer", 2: "f0_variance", 3: "loudness_range",
-    4: "teo", 5: "hnr", 6: "speech_rate", 7: "pause_rate",
-    8: "masking_score", 9: "brow_tension", 10: "gaze_aversion",
-    11: "facial_dynamism", 12: "stare_duration", 13: "blink_rate",
-    14: "head_nodding", 15: "head_tilt",
-    16: "absolutist_index", 17: "i_ratio", 18: "response_latency",
-    19: "lexical_density", 20: "past_tense_ratio", 21: "filler_density",
-    22: "sentiment", 23: "rumination",
-    24: "laughter", 25: "crying", 26: "sigh", 27: "strain",
+    0: "jitter",
+    1: "shimmer",
+    2: "f0_variance",
+    3: "loudness_range",
+    4: "teo",
+    5: "hnr",
+    6: "speech_rate",
+    7: "pause_rate",
+    8: "masking_score",
+    9: "brow_tension",
+    10: "gaze_aversion",
+    11: "facial_dynamism",
+    12: "stare_duration",
+    13: "blink_rate",
+    14: "head_nodding",
+    15: "head_tilt",
+    16: "absolutist_index",
+    17: "i_ratio",
+    18: "response_latency",
+    19: "lexical_density",
+    20: "past_tense_ratio",
+    21: "filler_density",
+    22: "sentiment",
+    23: "rumination",
+    24: "laughter",
+    25: "crying",
+    26: "sigh",
+    27: "strain",
 }
 
 
@@ -69,12 +88,14 @@ class BiomarkerTracker:
         changes = []
         for i, change in enumerate(delta):
             if abs(change) >= self.sig_threshold:
-                changes.append({
-                    "feature": FEATURE_NAMES.get(i, f"feature_{i}"),
-                    "change": float(change),
-                    "direction": "increased" if change > 0 else "decreased",
-                    "current": float(curr[i]),
-                })
+                changes.append(
+                    {
+                        "feature": FEATURE_NAMES.get(i, f"feature_{i}"),
+                        "change": float(change),
+                        "direction": "increased" if change > 0 else "decreased",
+                        "current": float(curr[i]),
+                    }
+                )
         changes.sort(key=lambda x: abs(x["change"]), reverse=True)
 
         return {
@@ -94,13 +115,13 @@ class BiomarkerTracker:
         for b in recent:
             d = 0.0
             if len(b) > 0:
-                d += max(0, b[0]) * 0.2    # jitter
+                d += max(0, b[0]) * 0.2  # jitter
             if len(b) > 1:
-                d += max(0, b[1]) * 0.15   # shimmer
+                d += max(0, b[1]) * 0.15  # shimmer
             if len(b) > 22:
                 d += max(0, -b[22]) * 0.3  # negative sentiment
             if len(b) > 23:
-                d += max(0, b[23]) * 0.1   # rumination
+                d += max(0, b[23]) * 0.1  # rumination
             if len(b) > 25:
                 d += max(0, b[25]) * 0.25  # crying
             scores.append(min(1.0, d))
@@ -129,38 +150,48 @@ class BiomarkerTracker:
 
         # High arousal + positive words = nervous positivity
         if len(curr) > 22 and len(curr) > 3 and curr[3] > 0.5 and curr[22] > 0.3:
-            contradictions.append({
-                "type": "nervous_positivity",
-                "detail": "High vocal energy with positive words — possible anxiety masking",
-            })
+            contradictions.append(
+                {
+                    "type": "nervous_positivity",
+                    "detail": "High vocal energy with positive words — possible anxiety masking",
+                }
+            )
 
         # Voice tremor + positive sentiment = hidden anxiety
         if len(curr) > 22 and len(curr) > 0 and curr[0] > 0.4 and curr[22] > 0:
-            contradictions.append({
-                "type": "hidden_anxiety",
-                "detail": "Voice tremor despite positive words — possible hidden anxiety",
-            })
+            contradictions.append(
+                {
+                    "type": "hidden_anxiety",
+                    "detail": "Voice tremor despite positive words — possible hidden anxiety",
+                }
+            )
 
         # Flat pitch + high volume = suppressed emotions
         if len(curr) > 3 and len(curr) > 2 and curr[2] < -0.3 and curr[3] > 0.4:
-            contradictions.append({
-                "type": "suppressed_emotions",
-                "detail": "Flat pitch despite high volume — possibly suppressing emotions",
-            })
+            contradictions.append(
+                {
+                    "type": "suppressed_emotions",
+                    "detail": "Flat pitch despite high volume — possibly suppressing emotions",
+                }
+            )
 
         # Crying + laughter = mixed signals
         if len(curr) > 25 and len(curr) > 24 and curr[24] > 0.3 and curr[25] > 0.3:
-            contradictions.append({
-                "type": "mixed_signals",
-                "detail": "Both laughter and crying detected — complex emotional state",
-            })
+            contradictions.append(
+                {
+                    "type": "mixed_signals",
+                    "detail": "Both laughter and crying detected — complex emotional state",
+                }
+            )
 
         # High jitter + shimmer but positive sentiment
         if len(curr) > 22 and len(curr) > 1 and curr[0] > 0.3 and curr[1] > 0.3 and curr[22] > 0.2:
-            contradictions.append({
-                "type": "voice_text_mismatch",
-                "detail": "Unstable voice paired with positive text — possible masking",
-            })
+            contradictions.append(
+                {
+                    "type": "voice_text_mismatch",
+                    "detail": "Unstable voice paired with positive text — possible masking",
+                }
+            )
 
         return {
             "detected": len(contradictions) > 0,

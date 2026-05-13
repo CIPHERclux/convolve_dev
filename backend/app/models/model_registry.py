@@ -29,6 +29,7 @@ class ModelRegistry:
                 if "semantic" not in cls._models:
                     log.info("Loading SentenceTransformer (all-MiniLM-L6-v2)…")
                     from sentence_transformers import SentenceTransformer
+
                     cls._models["semantic"] = SentenceTransformer(
                         "sentence-transformers/all-MiniLM-L6-v2"
                     )
@@ -44,10 +45,12 @@ class ModelRegistry:
                 if "vader" not in cls._models:
                     try:
                         import nltk
+
                         for res in ["punkt", "punkt_tab", "vader_lexicon"]:
                             with contextlib.suppress(Exception):
                                 nltk.download(res, quiet=True)
                         from nltk.sentiment.vader import SentimentIntensityAnalyzer
+
                         cls._models["vader"] = SentimentIntensityAnalyzer()
                         log.info("VADER loaded ✓")
                     except Exception as e:

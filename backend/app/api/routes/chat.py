@@ -72,13 +72,13 @@ async def chat_audio(
                 # Use Groq for free fast transcription
                 client = OpenAI(
                     api_key=settings.GROQ_API_KEY or settings.LLM_API_KEY,
-                    base_url="https://api.groq.com/openai/v1" if settings.GROQ_API_KEY else None
+                    base_url="https://api.groq.com/openai/v1" if settings.GROQ_API_KEY else None,
                 )
                 with open(temp_path, "rb") as af:
                     transcription = client.audio.transcriptions.create(
                         model="whisper-large-v3" if settings.GROQ_API_KEY else "whisper-1",
                         file=af,
-                        response_format="text"
+                        response_format="text",
                     )
                 user_text = transcription.strip()
                 log.info(f"Transcribed audio: '{user_text}'")

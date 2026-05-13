@@ -13,7 +13,8 @@ log = get_logger("services.safety")
 
 # Crisis patterns (compiled once)
 _CRISIS_PATTERNS = [
-    re.compile(p, re.IGNORECASE) for p in [
+    re.compile(p, re.IGNORECASE)
+    for p in [
         r"(want to|going to|gonna|should) (kill|hurt|end|unalive) (myself|me|my life)",
         r"(wish i was|wish i were) (dead|never born|gone)",
         r"(no point|no reason) (in|to|for) (living|life|being here|going on)",
@@ -27,7 +28,8 @@ _CRISIS_PATTERNS = [
 ]
 
 _HIGH_RISK_PATTERNS = [
-    re.compile(p, re.IGNORECASE) for p in [
+    re.compile(p, re.IGNORECASE)
+    for p in [
         r"(hurting|harming|cutting) (myself|me)",
         r"(have a|made a) (plan|method|way)",
         r"(gave away|giving away) (my|all) (stuff|things|belongings)",
@@ -37,7 +39,8 @@ _HIGH_RISK_PATTERNS = [
 ]
 
 _MODERATE_PATTERNS = [
-    re.compile(p, re.IGNORECASE) for p in [
+    re.compile(p, re.IGNORECASE)
+    for p in [
         r"(feel|feeling) (hopeless|worthless|useless|empty|numb)",
         r"(completely|totally|utterly) (alone|isolated|abandoned)",
         r"(nothing|no one) (matters|cares|helps)",

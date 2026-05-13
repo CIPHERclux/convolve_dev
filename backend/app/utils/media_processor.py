@@ -1,4 +1,3 @@
-from typing import Optional
 """
 Unified Media Processor — replaces 3 separate loaders
 (audio_processor.py, video_processor.py, file_loader.py).
@@ -12,6 +11,7 @@ import os
 import subprocess
 import tempfile
 from pathlib import Path
+from typing import Optional
 
 import librosa
 import numpy as np
@@ -84,7 +84,7 @@ class MediaProcessor:
         duration = len(audio) / self.target_sr
         if duration < settings.MIN_AUDIO_DURATION:
             return False
-        rms = np.sqrt(np.mean(audio ** 2))
+        rms = np.sqrt(np.mean(audio**2))
         if rms < 0.005:
             log.debug(f"Audio appears silent (RMS={rms:.4f})")
             return False
@@ -95,7 +95,7 @@ class MediaProcessor:
         if len(audio) == 0:
             return 0.0
 
-        signal_power = np.mean(audio ** 2)
+        signal_power = np.mean(audio**2)
         frame_size = min(1024, len(audio) // 10)
         if frame_size < 100:
             return 10.0
@@ -104,7 +104,7 @@ class MediaProcessor:
         frame_powers = []
         for i in range(0, len(audio) - frame_size, hop):
             frame = audio[i : i + frame_size]
-            frame_powers.append(np.mean(frame ** 2))
+            frame_powers.append(np.mean(frame**2))
 
         if not frame_powers:
             return 10.0
@@ -140,12 +140,19 @@ class MediaProcessor:
                 tmp_path = tmp.name
 
             cmd = [
-                "ffmpeg", "-y", "-i", filepath,
-                "-vn",                          # strip video
-                "-acodec", "pcm_s16le",         # PCM 16-bit
-                "-ar", str(self.target_sr),      # target sample rate
-                "-ac", "1",                      # mono
-                "-loglevel", "error",
+                "ffmpeg",
+                "-y",
+                "-i",
+                filepath,
+                "-vn",  # strip video
+                "-acodec",
+                "pcm_s16le",  # PCM 16-bit
+                "-ar",
+                str(self.target_sr),  # target sample rate
+                "-ac",
+                "1",  # mono
+                "-loglevel",
+                "error",
                 tmp_path,
             ]
 

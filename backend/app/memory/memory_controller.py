@@ -173,13 +173,9 @@ class MemoryController:
             return []
 
         # Build filters
-        must_conditions = [
-            FieldCondition(key="user_id", match=MatchValue(value=self.user_id))
-        ]
+        must_conditions = [FieldCondition(key="user_id", match=MatchValue(value=self.user_id))]
         if type_filter:
-            must_conditions.append(
-                FieldCondition(key="type", match=MatchValue(value=type_filter))
-            )
+            must_conditions.append(FieldCondition(key="type", match=MatchValue(value=type_filter)))
         if emotion_filter:
             must_conditions.append(
                 FieldCondition(key="emotion_tag", match=MatchValue(value=emotion_filter))
@@ -198,16 +194,18 @@ class MemoryController:
 
             memories = []
             for hit in results:
-                memories.append({
-                    "text": hit.payload.get("text", ""),
-                    "system_response": hit.payload.get("system_response", ""),
-                    "type": hit.payload.get("type", "turn"),
-                    "score": hit.score,
-                    "emotion_tag": hit.payload.get("emotion_tag", ""),
-                    "timestamp": hit.payload.get("timestamp", ""),
-                    "biomarkers": hit.payload.get("biomarkers", {}),
-                    "turn_number": hit.payload.get("turn_number", 0),
-                })
+                memories.append(
+                    {
+                        "text": hit.payload.get("text", ""),
+                        "system_response": hit.payload.get("system_response", ""),
+                        "type": hit.payload.get("type", "turn"),
+                        "score": hit.score,
+                        "emotion_tag": hit.payload.get("emotion_tag", ""),
+                        "timestamp": hit.payload.get("timestamp", ""),
+                        "biomarkers": hit.payload.get("biomarkers", {}),
+                        "turn_number": hit.payload.get("turn_number", 0),
+                    }
+                )
 
             log.debug(f"Search returned {len(memories)} results")
             return memories

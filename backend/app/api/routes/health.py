@@ -15,6 +15,7 @@ async def health_check():
     qdrant_ok = False
     try:
         from qdrant_client import QdrantClient
+
         client = QdrantClient(host=settings.QDRANT_HOST, port=settings.QDRANT_PORT, timeout=3)
         client.get_collections()
         qdrant_ok = True

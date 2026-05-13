@@ -1,4 +1,3 @@
-from typing import Optional
 """
 Dependency Injection — FastAPI Depends() providers.
 
@@ -8,6 +7,8 @@ with request-scoped dependency injection. This makes route handlers:
   2. Thread-safe (no mutable module-level state)
   3. Self-documenting (dependencies are explicit in function signatures)
 """
+
+from typing import Optional
 
 from fastapi import HTTPException, Request
 
@@ -26,9 +27,7 @@ def get_orchestrator(request: Request) -> OrchestrationService:
         HTTPException(503): If the orchestrator hasn't been initialized yet
                             (e.g., startup still in progress).
     """
-    orchestrator: Optional[OrchestrationService] = getattr(
-        request.app.state, "orchestrator", None
-    )
+    orchestrator: Optional[OrchestrationService] = getattr(request.app.state, "orchestrator", None)
     if orchestrator is None:
         raise HTTPException(
             status_code=503,

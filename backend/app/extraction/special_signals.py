@@ -70,8 +70,11 @@ class SpecialSignalsEngine:
 
             if len(rms) > 20:
                 rms_n = (rms - np.mean(rms)) / (np.std(rms) + 1e-8)
-                peaks = [i for i in range(1, len(rms_n) - 1)
-                         if rms_n[i] > rms_n[i - 1] and rms_n[i] > rms_n[i + 1] and rms_n[i] > 0.5]
+                peaks = [
+                    i
+                    for i in range(1, len(rms_n) - 1)
+                    if rms_n[i] > rms_n[i - 1] and rms_n[i] > rms_n[i + 1] and rms_n[i] > 0.5
+                ]
                 if len(peaks) >= 5:
                     intervals = np.diff(peaks)
                     cv = np.std(intervals) / (np.mean(intervals) + 1e-8)
@@ -144,7 +147,9 @@ class SpecialSignalsEngine:
             score = 0.05
             for i in range(len(rms) - 8):
                 seg = rms[i : i + 8]
-                if all(seg[j] >= seg[j + 1] * 0.9 for j in range(7)) and np.mean(seg) > 0.15 * np.max(rms):
+                if all(seg[j] >= seg[j + 1] * 0.9 for j in range(7)) and np.mean(
+                    seg
+                ) > 0.15 * np.max(rms):
                     score = min(0.5, score + 0.15)
             return score
         except Exception:

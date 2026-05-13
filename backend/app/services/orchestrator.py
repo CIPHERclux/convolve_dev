@@ -67,9 +67,7 @@ class OrchestrationService:
             }
         return self._user_state[user_id]
 
-    async def process_text_turn(
-        self, session_id: str, text: str
-    ) -> ChatResponse:
+    async def process_text_turn(self, session_id: str, text: str) -> ChatResponse:
         """Process a text-only turn."""
         return await self._process_turn(
             session_id=session_id,
@@ -191,9 +189,7 @@ class OrchestrationService:
             and session.turn_number % settings.EPISODIC_ROLLUP_INTERVAL == 0
             and memory.is_connected()
         ):
-            task = asyncio.create_task(
-                self._create_episodic_summary(session, memory)
-            )
+            task = asyncio.create_task(self._create_episodic_summary(session, memory))
             self._background_tasks.add(task)
             task.add_done_callback(self._background_tasks.discard)
 

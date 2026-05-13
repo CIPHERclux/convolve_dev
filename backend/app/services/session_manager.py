@@ -1,10 +1,10 @@
-from typing import Optional
 """
 Session Manager — manages session state across API calls.
 """
 
 import uuid
 from datetime import datetime
+from typing import Optional
 
 from app.utils.logger import get_logger
 

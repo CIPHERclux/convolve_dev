@@ -11,6 +11,7 @@ from pydantic import BaseModel, Field
 # Request Models
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+
 class SessionStartRequest(BaseModel):
     user_id: str = Field(default="default_user", description="User identifier")
 
@@ -24,8 +25,10 @@ class TextChatRequest(BaseModel):
 # Internal Models (passed between services)
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+
 class ProcessedMedia(BaseModel):
     """Output of the media processor."""
+
     audio_array: Optional[Any] = None  # np.ndarray (not serializable)
     sample_rate: int = 16000
     duration: float = 0.0
@@ -35,6 +38,7 @@ class ProcessedMedia(BaseModel):
 
 class BiomarkerPayload(BaseModel):
     """Biomarker telemetry — attached to Qdrant payload, NOT used for search."""
+
     # Acoustic (indices 0-7)
     jitter: float = 0.0
     shimmer: float = 0.0
@@ -65,6 +69,7 @@ class BiomarkerPayload(BaseModel):
 
 class ExtractionResult(BaseModel):
     """Full output from the feature extraction pipeline."""
+
     semantic_embedding: list[float] = Field(default_factory=list)
     biomarkers: BiomarkerPayload = Field(default_factory=BiomarkerPayload)
     raw_vector: list[float] = Field(default_factory=list)  # Full 32-D for tracker
@@ -73,6 +78,7 @@ class ExtractionResult(BaseModel):
 
 class SafetyCheck(BaseModel):
     """Output of safety service."""
+
     is_crisis: bool = False
     risk_level: str = "none"  # "none" | "low" | "moderate" | "high" | "critical"
     flags: list[str] = Field(default_factory=list)
@@ -81,6 +87,7 @@ class SafetyCheck(BaseModel):
 
 class MemoryContext(BaseModel):
     """Retrieved context from memory for LLM."""
+
     relevant_memories: list[dict[str, Any]] = Field(default_factory=list)
     user_profile_summary: str = ""
     biomarker_summary: str = ""
@@ -89,6 +96,7 @@ class MemoryContext(BaseModel):
 
 class ToolCall(BaseModel):
     """A tool call made by the LLM during response generation."""
+
     name: str
     arguments: dict[str, Any] = Field(default_factory=dict)
 
@@ -96,6 +104,7 @@ class ToolCall(BaseModel):
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # Response Models
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 
 class SessionStartResponse(BaseModel):
     session_id: str

@@ -1,4 +1,3 @@
-from typing import Optional
 """
 Feature Engine — Coordinator for all extraction modules.
 
@@ -9,6 +8,7 @@ KEY ARCHITECTURAL CHANGE (Phase 1 — Decoupled Extraction):
   • Biomarkers are attached as payload for LLM context
 """
 
+from typing import Optional
 
 import numpy as np
 
@@ -62,9 +62,7 @@ class FeatureEngine:
         log.info(f"Extracting features — modality={modality}")
 
         has_audio = (
-            audio_array is not None
-            and len(audio_array) > 0
-            and modality in ("audio", "video")
+            audio_array is not None and len(audio_array) > 0 and modality in ("audio", "video")
         )
 
         # ── Acoustic features (indices 0-7) ──────────────────────────────
@@ -86,12 +84,14 @@ class FeatureEngine:
         )
 
         # ── Combine into raw 32-D biomarker vector ──────────────────────
-        raw_vector = np.concatenate([
-            acoustic_features,
-            visual_features,
-            linguistic_features,
-            special_features,
-        ]).astype(np.float32)
+        raw_vector = np.concatenate(
+            [
+                acoustic_features,
+                visual_features,
+                linguistic_features,
+                special_features,
+            ]
+        ).astype(np.float32)
 
         # ── Semantic embedding (for Qdrant search) ──────────────────────
         semantic_embedding = self._encode_semantic(text)

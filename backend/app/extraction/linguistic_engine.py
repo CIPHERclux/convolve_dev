@@ -1,4 +1,3 @@
-from typing import Optional
 """
 Linguistic Engine — 8 text-based features.
 
@@ -8,6 +7,7 @@ Refactored: uses ModelRegistry for VADER, structured logging.
 import contextlib
 import re
 from datetime import datetime
+from typing import Optional
 
 import numpy as np
 
@@ -148,9 +148,27 @@ class LinguisticEngine:
     def _past_tense_ratio(self, words: list[str]) -> float:
         if not words:
             return 0.0
-        past = {"was", "were", "had", "did", "went", "said", "got", "made",
-                "came", "thought", "felt", "knew", "took", "saw", "found",
-                "gave", "told", "left", "called"}
+        past = {
+            "was",
+            "were",
+            "had",
+            "did",
+            "went",
+            "said",
+            "got",
+            "made",
+            "came",
+            "thought",
+            "felt",
+            "knew",
+            "took",
+            "saw",
+            "found",
+            "gave",
+            "told",
+            "left",
+            "called",
+        }
         count = sum(1 for w in words if w.endswith("ed") or w in past)
         ratio = count / len(words)
         return float(np.clip((ratio - 0.07) / 0.05, -1, 1))
@@ -198,7 +216,18 @@ class LinguisticEngine:
 
         # Simple word backup
         pos_words = {"good", "great", "happy", "love", "wonderful", "amazing", "better", "best"}
-        neg_words = {"bad", "sad", "hate", "terrible", "awful", "angry", "upset", "hurt", "pain", "alone"}
+        neg_words = {
+            "bad",
+            "sad",
+            "hate",
+            "terrible",
+            "awful",
+            "angry",
+            "upset",
+            "hurt",
+            "pain",
+            "alone",
+        }
         words = self._tokenize(text)
         pc = sum(1 for w in words if w in pos_words)
         nc = sum(1 for w in words if w in neg_words)
@@ -222,7 +251,19 @@ class LinguisticEngine:
             score += 0.3
 
         # Negative word repetition
-        neg = ["sad", "bad", "hate", "hurt", "pain", "alone", "never", "always", "why", "cant", "can't"]
+        neg = [
+            "sad",
+            "bad",
+            "hate",
+            "hurt",
+            "pain",
+            "alone",
+            "never",
+            "always",
+            "why",
+            "cant",
+            "can't",
+        ]
         if any(counts.get(w, 0) >= 2 for w in neg):
             score += 0.3
 

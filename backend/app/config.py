@@ -77,13 +77,33 @@ class Settings(BaseSettings):
 
     # ── Linguistic Feature Constants ─────────────────────────────────────
     ABSOLUTIST_WORDS: list = [
-        "always", "never", "nothing", "everything", "everyone",
-        "nobody", "completely", "totally", "absolutely", "entirely",
-        "impossible", "definitely", "certainly", "forever", "constantly",
+        "always",
+        "never",
+        "nothing",
+        "everything",
+        "everyone",
+        "nobody",
+        "completely",
+        "totally",
+        "absolutely",
+        "entirely",
+        "impossible",
+        "definitely",
+        "certainly",
+        "forever",
+        "constantly",
     ]
     FILLER_WORDS: list = [
-        "um", "uh", "like", "you know", "i mean", "sort of",
-        "kind of", "basically", "actually", "literally",
+        "um",
+        "uh",
+        "like",
+        "you know",
+        "i mean",
+        "sort of",
+        "kind of",
+        "basically",
+        "actually",
+        "literally",
     ]
 
     @model_validator(mode="after")
@@ -113,5 +133,10 @@ class Settings(BaseSettings):
 settings = Settings()
 
 # Ensure data directories exist
-for dir_path in [settings.DATA_DIR, settings.PROFILES_DIR, settings.BASELINES_DIR, settings.UPLOAD_DIR]:
+for dir_path in [
+    settings.DATA_DIR,
+    settings.PROFILES_DIR,
+    settings.BASELINES_DIR,
+    settings.UPLOAD_DIR,
+]:
     Path(dir_path).mkdir(parents=True, exist_ok=True)

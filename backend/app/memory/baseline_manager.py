@@ -1,4 +1,3 @@
-from typing import Optional
 """
 Baseline Manager — user-specific baseline calibration via Welford's algorithm.
 
@@ -7,6 +6,7 @@ Preserved from original with minimal changes (structured logging + config import
 
 import json
 import os
+from typing import Optional
 
 import numpy as np
 

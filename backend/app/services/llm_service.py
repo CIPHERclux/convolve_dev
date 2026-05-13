@@ -38,11 +38,11 @@ TOOLS = [
                     "risk_level": {
                         "type": "string",
                         "enum": ["moderate", "high", "critical"],
-                        "description": "Severity of the crisis"
+                        "description": "Severity of the crisis",
                     },
                     "reasoning": {
                         "type": "string",
-                        "description": "Why you flagged this as a crisis"
+                        "description": "Why you flagged this as a crisis",
                     },
                 },
                 "required": ["risk_level", "reasoning"],
@@ -59,15 +59,12 @@ TOOLS = [
                 "properties": {
                     "fact_type": {
                         "type": "string",
-                        "description": "Category: name, age, location, occupation, relationship, diagnosis, medication, goal, concern"
+                        "description": "Category: name, age, location, occupation, relationship, diagnosis, medication, goal, concern",
                     },
-                    "value": {
-                        "type": "string",
-                        "description": "The fact value"
-                    },
+                    "value": {"type": "string", "description": "The fact value"},
                     "relationship_type": {
                         "type": "string",
-                        "description": "If fact_type is 'relationship', the relationship kind (mother, friend, partner, etc)"
+                        "description": "If fact_type is 'relationship', the relationship kind (mother, friend, partner, etc)",
                     },
                 },
                 "required": ["fact_type", "value"],
@@ -82,13 +79,10 @@ TOOLS = [
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "trigger_name": {
-                        "type": "string",
-                        "description": "What triggered the emotion"
-                    },
+                    "trigger_name": {"type": "string", "description": "What triggered the emotion"},
                     "emotion": {
                         "type": "string",
-                        "description": "The emotion associated with the trigger"
+                        "description": "The emotion associated with the trigger",
                     },
                 },
                 "required": ["trigger_name", "emotion"],
@@ -157,14 +151,19 @@ class LLMService:
 
             # Parse [EMOTION: ...] tag from text
             import re
-            emotion_match = re.search(r'\[EMOTION:\s*([a-zA-Z]+)\]', response_text, re.IGNORECASE)
+
+            emotion_match = re.search(r"\[EMOTION:\s*([a-zA-Z]+)\]", response_text, re.IGNORECASE)
             if emotion_match:
                 emotion_tag = emotion_match.group(1).lower()
                 # Remove the tag from the final response sent to the user
-                response_text = re.sub(r'\[EMOTION:\s*[a-zA-Z]+\]', '', response_text, flags=re.IGNORECASE).strip()
+                response_text = re.sub(
+                    r"\[EMOTION:\s*[a-zA-Z]+\]", "", response_text, flags=re.IGNORECASE
+                ).strip()
 
             # Strip any hallucinated XML function tags that Groq Llama 3 sometimes outputs
-            response_text = re.sub(r'<function=.*?</function>', '', response_text, flags=re.IGNORECASE | re.DOTALL).strip()
+            response_text = re.sub(
+                r"<function=.*?</function>", "", response_text, flags=re.IGNORECASE | re.DOTALL
+            ).strip()
 
             # Process tool calls
             if msg.tool_calls:
@@ -177,7 +176,9 @@ class LLMService:
                     except json.JSONDecodeError:
                         log.warning(f"Failed to parse tool args: {tc.function.arguments}")
 
-            log.info(f"LLM response: {len(response_text)} chars, {len(tool_calls)} tools, emotion={emotion_tag}")
+            log.info(
+                f"LLM response: {len(response_text)} chars, {len(tool_calls)} tools, emotion={emotion_tag}"
+            )
             return response_text, tool_calls, emotion_tag
 
         except Exception as e:
@@ -187,7 +188,9 @@ class LLMService:
             if "429" in error_msg or "rate limit" in error_msg.lower():
                 fallback = "I'm currently receiving too many requests (API Rate Limit). Please wait a moment and try again."
             else:
-                fallback = f"I'm sorry, my language model encountered an error: {error_msg[:100]}..."
+                fallback = (
+                    f"I'm sorry, my language model encountered an error: {error_msg[:100]}..."
+                )
             return (
                 fallback,
                 [],
@@ -235,9 +238,7 @@ class LLMService:
             log.debug(f"Self-query fallback (using raw text): {e}")
             return user_text, {}
 
-    async def generate_episodic_summary(
-        self, conversation_block: list[dict[str, str]]
-    ) -> str:
+    async def generate_episodic_summary(self, conversation_block: list[dict[str, str]]) -> str:
         """
         Episodic Summarization (Phase 2 — Post-Retrieval).
 

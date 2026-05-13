@@ -1,4 +1,3 @@
-from typing import Optional
 """
 Acoustic Engine — 8-feature voice biomarker extraction.
 
@@ -8,6 +7,7 @@ Refactored from the original kairos/extraction/acoustic_engine.py:
 - Clean error handling
 """
 
+from typing import Optional
 
 import librosa
 import numpy as np
@@ -38,14 +38,14 @@ class AcousticEngine:
 
         # Calibration baselines (neutral speech reference values)
         self.baselines = {
-            "jitter":         {"mean": 0.015, "std": 0.01},
-            "shimmer":        {"mean": 0.04,  "std": 0.025},
-            "f0_cv":          {"mean": 0.2,   "std": 0.1},
-            "loudness_range": {"mean": 20,    "std": 8},
-            "teo":            {"mean": 1.0,   "std": 0.3},
-            "hnr":            {"mean": 12,    "std": 5},
-            "speech_rate":    {"mean": 4.5,   "std": 1.2},
-            "pause_rate":     {"mean": 2.5,   "std": 1.5},
+            "jitter": {"mean": 0.015, "std": 0.01},
+            "shimmer": {"mean": 0.04, "std": 0.025},
+            "f0_cv": {"mean": 0.2, "std": 0.1},
+            "loudness_range": {"mean": 20, "std": 8},
+            "teo": {"mean": 1.0, "std": 0.3},
+            "hnr": {"mean": 12, "std": 5},
+            "speech_rate": {"mean": 4.5, "std": 1.2},
+            "pause_rate": {"mean": 2.5, "std": 1.5},
         }
 
     def extract(self, audio: np.ndarray) -> np.ndarray:
@@ -64,7 +64,7 @@ class AcousticEngine:
         else:
             return features
 
-        rms = np.sqrt(np.mean(audio ** 2))
+        rms = np.sqrt(np.mean(audio**2))
         if rms < 0.01:
             log.debug(f"Audio near-silent (RMS={rms:.4f})")
             return features
@@ -72,8 +72,12 @@ class AcousticEngine:
         try:
             # Extract F0 (pitch)
             f0, _voiced_flag, voiced_probs = librosa.pyin(
-                audio, fmin=60, fmax=400,
-                sr=self.sample_rate, frame_length=2048, hop_length=512,
+                audio,
+                fmin=60,
+                fmax=400,
+                sr=self.sample_rate,
+                frame_length=2048,
+                hop_length=512,
             )
             f0_valid = f0[~np.isnan(f0)]
 
@@ -89,7 +93,16 @@ class AcousticEngine:
             features[6] = self._extract_speech_rate(audio, voiced_probs)
             features[7] = self._extract_pause_frequency(audio, len(audio) / self.sample_rate)
 
-            names = ["jitter", "shimmer", "f0_var", "loudness", "teo", "hnr", "speech_rate", "pause"]
+            names = [
+                "jitter",
+                "shimmer",
+                "f0_var",
+                "loudness",
+                "teo",
+                "hnr",
+                "speech_rate",
+                "pause",
+            ]
             for name, val in zip(names, features):
                 log.debug(f"{name}={val:.3f}")
 
@@ -180,7 +193,7 @@ class AcousticEngine:
             return 0.0
         try:
             teo = audio[1:-1] ** 2 - audio[:-2] * audio[2:]
-            sig_e = np.mean(audio ** 2)
+            sig_e = np.mean(audio**2)
             if sig_e < 1e-8:
                 return 0.0
             return self._normalize(np.mean(np.abs(teo)) / sig_e, "teo")
@@ -221,7 +234,9 @@ class AcousticEngine:
             if duration < 0.5:
                 return 0.0
             onset_env = librosa.onset.onset_strength(y=audio, sr=self.sample_rate)
-            onsets = librosa.onset.onset_detect(onset_envelope=onset_env, sr=self.sample_rate, backtrack=False)
+            onsets = librosa.onset.onset_detect(
+                onset_envelope=onset_env, sr=self.sample_rate, backtrack=False
+            )
             rate = len(onsets) / duration
             return self._normalize(rate, "speech_rate")
         except Exception:
