@@ -6,6 +6,7 @@ Supports: LLM_API_KEY, OPENAI_API_KEY, or GROQ_API_KEY (auto-detected).
 """
 
 from pathlib import Path
+from typing import Optional
 
 from pydantic import model_validator
 from pydantic_settings import BaseSettings
@@ -27,7 +28,7 @@ class Settings(BaseSettings):
     # ── LLM ──────────────────────────────────────────────────────────────
     LLM_API_KEY: str = ""
     LLM_MODEL: str = "gpt-4o-mini"
-    LLM_BASE_URL: str | None = None
+    LLM_BASE_URL: Optional[str] = None
     LLM_MAX_TOKENS: int = 1024
     LLM_TEMPERATURE: float = 0.7
 

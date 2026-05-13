@@ -11,7 +11,7 @@ KEY ARCHITECTURAL CHANGES (Phase 1 + 2):
 
 import uuid
 from datetime import datetime
-from typing import Any
+from typing import Any, Optional
 
 from qdrant_client import QdrantClient
 from qdrant_client.http.models import (
@@ -50,7 +50,7 @@ class MemoryController:
     def __init__(self, user_id: str):
         self.user_id = user_id
         self.collection = settings.QDRANT_COLLECTION
-        self.client: QdrantClient | None = None
+        self.client: Optional[QdrantClient] = None
         self._connect()
 
     def _connect(self):
@@ -162,8 +162,8 @@ class MemoryController:
         query_embedding: list[float],
         limit: int = 5,
         score_threshold: float = 0.3,
-        type_filter: str | None = None,
-        emotion_filter: str | None = None,
+        type_filter: Optional[str] = None,
+        emotion_filter: Optional[str] = None,
     ) -> list[dict[str, Any]]:
         """
         Semantic search — ONLY uses embedding distance.

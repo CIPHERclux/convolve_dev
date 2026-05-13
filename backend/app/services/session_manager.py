@@ -1,3 +1,4 @@
+from typing import Optional
 """
 Session Manager — manages session state across API calls.
 """
@@ -20,7 +21,7 @@ class Session:
         self.created_at = datetime.now()
         self.last_activity = datetime.now()
         self.history: list[dict[str, str]] = []  # {role, content}
-        self.last_system_end_time: str | None = None
+        self.last_system_end_time: Optional[str] = None
 
     def add_user_message(self, text: str):
         self.history.append({"role": "user", "content": text})
@@ -53,7 +54,7 @@ class SessionManager:
         log.info(f"Session created: {session_id} for user {user_id}")
         return session
 
-    def get_session(self, session_id: str) -> Session | None:
+    def get_session(self, session_id: str) -> Optional[Session]:
         return self.sessions.get(session_id)
 
     def end_session(self, session_id: str) -> bool:

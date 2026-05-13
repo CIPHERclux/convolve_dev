@@ -3,7 +3,7 @@ Pydantic Schemas — request/response models for the API.
 """
 
 from datetime import datetime
-from typing import Any
+from typing import Any, Optional
 
 from pydantic import BaseModel, Field
 
@@ -26,7 +26,7 @@ class TextChatRequest(BaseModel):
 
 class ProcessedMedia(BaseModel):
     """Output of the media processor."""
-    audio_array: Any | None = None  # np.ndarray (not serializable)
+    audio_array: Optional[Any] = None  # np.ndarray (not serializable)
     sample_rate: int = 16000
     duration: float = 0.0
     modality: str = "text"  # "text" | "audio"
@@ -107,11 +107,11 @@ class ChatResponse(BaseModel):
     session_id: str
     response_text: str
     turn_number: int
-    user_transcription: str | None = None
-    biomarkers: BiomarkerPayload | None = None
+    user_transcription: Optional[str] = None
+    biomarkers: Optional[BiomarkerPayload] = None
     masking_detected: bool = False
-    masking_details: dict[str, Any] | None = None
-    safety: SafetyCheck | None = None
+    masking_details: Optional[dict[str, Any]] = None
+    safety: Optional[SafetyCheck] = None
     tool_calls: list[ToolCall] = Field(default_factory=list)
     emotion_tag: str = "neutral"
     timestamp: str = Field(default_factory=lambda: datetime.now().isoformat())

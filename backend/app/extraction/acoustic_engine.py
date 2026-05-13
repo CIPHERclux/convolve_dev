@@ -1,3 +1,4 @@
+from typing import Optional
 """
 Acoustic Engine — 8-feature voice biomarker extraction.
 
@@ -32,7 +33,7 @@ class AcousticEngine:
         [7] Pause Rate   — pauses/min (hesitation, cognitive load)
     """
 
-    def __init__(self, sample_rate: int | None = None):
+    def __init__(self, sample_rate: Optional[int] = None):
         self.sample_rate = sample_rate or settings.AUDIO_SAMPLE_RATE
 
         # Calibration baselines (neutral speech reference values)

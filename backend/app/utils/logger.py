@@ -1,3 +1,4 @@
+from typing import Optional
 """
 Structured Logging — replaces 200+ print() statements.
 """
@@ -6,7 +7,7 @@ import logging
 import sys
 
 
-def get_logger(name: str, level: int | None = None) -> logging.Logger:
+def get_logger(name: str, level: Optional[int] = None) -> logging.Logger:
     """Get a configured logger for a module."""
     logger = logging.getLogger(f"convolve.{name}")
 

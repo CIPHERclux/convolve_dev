@@ -1,3 +1,4 @@
+from typing import Optional
 """
 Dependency Injection — FastAPI Depends() providers.
 
@@ -25,7 +26,7 @@ def get_orchestrator(request: Request) -> OrchestrationService:
         HTTPException(503): If the orchestrator hasn't been initialized yet
                             (e.g., startup still in progress).
     """
-    orchestrator: OrchestrationService | None = getattr(
+    orchestrator: Optional[OrchestrationService] = getattr(
         request.app.state, "orchestrator", None
     )
     if orchestrator is None:

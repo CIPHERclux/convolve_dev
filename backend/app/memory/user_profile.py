@@ -8,7 +8,7 @@ import json
 import os
 import re
 from datetime import datetime
-from typing import Any
+from typing import Any, Optional
 
 from app.config import settings
 from app.utils.logger import get_logger
@@ -116,7 +116,7 @@ class UserProfile:
             self.facts["custom_facts"][key] = value
         self._save()
 
-    def get_name(self) -> str | None:
+    def get_name(self) -> Optional[str]:
         return self.facts.get("name")
 
     def get_summary_for_llm(self) -> str:
@@ -149,7 +149,7 @@ class UserProfile:
 
     # ── Extraction helpers ───────────────────────────────────────────────
 
-    def _extract_name(self, text: str) -> str | None:
+    def _extract_name(self, text: str) -> Optional[str]:
         patterns = [
             r"(?:my name is|i'm|i am|call me|they call me)\s+([A-Z][a-z]+)",
             r"^([A-Z][a-z]+)(?:\s+here)?[!.]?\s*$",
@@ -177,7 +177,7 @@ class UserProfile:
             and not any(c.isdigit() for c in name)
         )
 
-    def _extract_age(self, text: str) -> int | None:
+    def _extract_age(self, text: str) -> Optional[int]:
         patterns = [
             r"(?:i'm|i am|im)\s+(\d{1,2})\s*(?:years?\s*old|yo|y/o)",
             r"(\d{1,2})\s*(?:years?\s*old|yo|y/o)",
@@ -191,7 +191,7 @@ class UserProfile:
                     return age
         return None
 
-    def _extract_location(self, text: str) -> str | None:
+    def _extract_location(self, text: str) -> Optional[str]:
         patterns = [
             r"(?:i live in|i'm from|i am from|living in|based in|moved to)\s+([A-Z][a-zA-Z\s,]+?)(?:\.|,|!|\?|$)",
         ]

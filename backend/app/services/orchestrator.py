@@ -5,6 +5,7 @@ Routes requests through services. No business logic lives here.
 """
 
 import asyncio
+from typing import Optional
 
 import numpy as np
 
@@ -92,7 +93,7 @@ class OrchestrationService:
         self,
         session_id: str,
         text: str,
-        audio_array: np.ndarray | None,
+        audio_array: Optional[np.ndarray],
         modality: str,
     ) -> ChatResponse:
         """Core processing pipeline."""

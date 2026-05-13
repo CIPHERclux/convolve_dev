@@ -1,3 +1,4 @@
+from typing import Optional
 """
 Linguistic Engine — 8 text-based features.
 
@@ -70,7 +71,7 @@ class LinguisticEngine:
         self._p_neg = [(re.compile(p, re.IGNORECASE), s) for p, s in neg]
         self._p_pos = [(re.compile(p, re.IGNORECASE), s) for p, s in pos]
 
-    def extract(self, text: str, last_system_end_time: str | None = None) -> np.ndarray:
+    def extract(self, text: str, last_system_end_time: Optional[str] = None) -> np.ndarray:
         """Extract all 8 linguistic features."""
         features = np.zeros(8, dtype=np.float32)
         if not text or not text.strip():
@@ -122,7 +123,7 @@ class LinguisticEngine:
         ratio = count / len(words)
         return float(np.clip((ratio - 0.08) / 0.07, -1, 1))
 
-    def _response_latency(self, last_time_str: str | None) -> float:
+    def _response_latency(self, last_time_str: Optional[str]) -> float:
         if not last_time_str:
             return 0.0
         try:

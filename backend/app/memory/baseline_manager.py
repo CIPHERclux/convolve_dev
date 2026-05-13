@@ -1,3 +1,4 @@
+from typing import Optional
 """
 Baseline Manager — user-specific baseline calibration via Welford's algorithm.
 
@@ -27,8 +28,8 @@ class BaselineManager:
         self.stats_file = os.path.join(settings.BASELINES_DIR, f"{user_id}_stats.json")
 
         self.count = 0
-        self.mean: np.ndarray | None = None
-        self.m2: np.ndarray | None = None
+        self.mean: Optional[np.ndarray] = None
+        self.m2: Optional[np.ndarray] = None
 
         self._load_stats()
 
@@ -65,10 +66,10 @@ class BaselineManager:
         except Exception as e:
             log.warning(f"Could not save baseline: {e}")
 
-    def get_baseline(self) -> np.ndarray | None:
+    def get_baseline(self) -> Optional[np.ndarray]:
         return self.mean
 
-    def get_std(self) -> np.ndarray | None:
+    def get_std(self) -> Optional[np.ndarray]:
         if self.count < 2 or self.m2 is None:
             return None
         return np.sqrt(self.m2 / (self.count - 1))

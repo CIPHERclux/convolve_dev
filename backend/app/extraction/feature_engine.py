@@ -1,3 +1,4 @@
+from typing import Optional
 """
 Feature Engine — Coordinator for all extraction modules.
 
@@ -42,9 +43,9 @@ class FeatureEngine:
     def extract(
         self,
         text: str = "",
-        audio_array: np.ndarray | None = None,
+        audio_array: Optional[np.ndarray] = None,
         modality: str = "text",
-        last_system_end_time: str | None = None,
+        last_system_end_time: Optional[str] = None,
     ) -> ExtractionResult:
         """
         Extract all features from input.

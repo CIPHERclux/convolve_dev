@@ -1,3 +1,4 @@
+from typing import Optional
 """
 Unified Media Processor — replaces 3 separate loaders
 (audio_processor.py, video_processor.py, file_loader.py).
@@ -24,12 +25,12 @@ log = get_logger("media_processor")
 class MediaProcessor:
     """Unified audio ingestion — single code path, no fallback chains."""
 
-    def __init__(self, target_sr: int | None = None):
+    def __init__(self, target_sr: Optional[int] = None):
         self.target_sr = target_sr or settings.AUDIO_SAMPLE_RATE
 
     # ── Public API ───────────────────────────────────────────────────────
 
-    def load_audio_file(self, filepath: str) -> tuple[np.ndarray | None, int]:
+    def load_audio_file(self, filepath: str) -> Optional[tuple[np.ndarray, int]]:
         """
         Load any audio file → mono float32 numpy array.
 
@@ -72,7 +73,7 @@ class MediaProcessor:
         log.info(f"Audio loaded: {len(audio):,} samples, {duration:.2f}s")
         return audio, sr
 
-    def extract_audio_from_video(self, video_path: str) -> tuple[np.ndarray | None, int]:
+    def extract_audio_from_video(self, video_path: str) -> Optional[tuple[np.ndarray, int]]:
         """Extract audio track from video file via ffmpeg."""
         return self._load_via_ffmpeg(video_path)
 
@@ -120,7 +121,7 @@ class MediaProcessor:
 
     # ── Private Loading Methods ──────────────────────────────────────────
 
-    def _load_librosa(self, filepath: str) -> tuple[np.ndarray | None, int]:
+    def _load_librosa(self, filepath: str) -> Optional[tuple[np.ndarray, int]]:
         """Direct librosa load for natively supported formats."""
         try:
             audio, sr = librosa.load(filepath, sr=None, mono=True)
@@ -131,7 +132,7 @@ class MediaProcessor:
             log.warning(f"librosa failed: {e}")
             return self._load_via_ffmpeg(filepath)
 
-    def _load_via_ffmpeg(self, filepath: str) -> tuple[np.ndarray | None, int]:
+    def _load_via_ffmpeg(self, filepath: str) -> Optional[tuple[np.ndarray, int]]:
         """Convert any audio/video to WAV via ffmpeg, then load."""
         tmp_path = None
         try:
