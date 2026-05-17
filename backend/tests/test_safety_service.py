@@ -23,17 +23,20 @@ def safety():
 class TestCriticalPatterns:
     """Test that critical crisis language is always flagged."""
 
-    @pytest.mark.parametrize("text", [
-        "I want to kill myself",
-        "I'm going to end my life",
-        "I wish I was dead",
-        "I wish I were never born",
-        "No point in living anymore",
-        "Everyone would be better off without me",
-        "I don't want to be alive anymore",
-        "Nobody would care if I disappeared",
-        "I want to die",
-    ])
+    @pytest.mark.parametrize(
+        "text",
+        [
+            "I want to kill myself",
+            "I'm going to end my life",
+            "I wish I was dead",
+            "I wish I were never born",
+            "No point in living anymore",
+            "Everyone would be better off without me",
+            "I don't want to be alive anymore",
+            "Nobody would care if I disappeared",
+            "I want to die",
+        ],
+    )
     def test_critical_patterns_detected(self, safety, text):
         result = safety.check(text)
         assert result.is_crisis is True, f"Failed to detect crisis: '{text}'"
@@ -53,12 +56,15 @@ class TestCriticalPatterns:
 class TestHighRiskPatterns:
     """Test that high-risk language is flagged appropriately."""
 
-    @pytest.mark.parametrize("text", [
-        "I've been hurting myself lately",
-        "I have a plan to end it",
-        "I gave away my stuff to friends",
-        "This is my goodbye letter",
-    ])
+    @pytest.mark.parametrize(
+        "text",
+        [
+            "I've been hurting myself lately",
+            "I have a plan to end it",
+            "I gave away my stuff to friends",
+            "This is my goodbye letter",
+        ],
+    )
     def test_high_risk_detected(self, safety, text):
         result = safety.check(text)
         assert result.is_crisis is True
@@ -72,13 +78,16 @@ class TestHighRiskPatterns:
 class TestModeratePatterns:
     """Test moderate distress detection — should NOT be flagged as crisis."""
 
-    @pytest.mark.parametrize("text", [
-        "I feel completely alone",
-        "Nothing matters anymore",
-        "I'm giving up",
-        "I feel trapped with no way out",
-        "I am totally isolated",
-    ])
+    @pytest.mark.parametrize(
+        "text",
+        [
+            "I feel completely alone",
+            "Nothing matters anymore",
+            "I'm giving up",
+            "I feel trapped with no way out",
+            "I am totally isolated",
+        ],
+    )
     def test_moderate_detected_not_crisis(self, safety, text):
         result = safety.check(text)
         assert result.is_crisis is False
@@ -92,14 +101,17 @@ class TestModeratePatterns:
 class TestSafeInput:
     """Test that normal conversation is not flagged."""
 
-    @pytest.mark.parametrize("text", [
-        "I had a great day today!",
-        "The weather is nice outside",
-        "I'm working on a project for school",
-        "My friend came over for dinner",
-        "I feel happy and grateful",
-        "",
-    ])
+    @pytest.mark.parametrize(
+        "text",
+        [
+            "I had a great day today!",
+            "The weather is nice outside",
+            "I'm working on a project for school",
+            "My friend came over for dinner",
+            "I feel happy and grateful",
+            "",
+        ],
+    )
     def test_safe_input_no_flags(self, safety, text):
         result = safety.check(text)
         assert result.is_crisis is False
@@ -135,7 +147,6 @@ class TestBiomarkerEscalation:
 
 
 class TestEdgeCases:
-
     def test_empty_text(self, safety):
         result = safety.check("")
         assert result.is_crisis is False

@@ -21,21 +21,65 @@ def profile(tmp_path):
     p.user_id = "test_user"
     p.path = str(tmp_path / "test_profile.json")
     p.facts = {
-        "name": None, "pronouns": None, "age": None,
-        "location": None, "occupation": None, "school": None,
+        "name": None,
+        "pronouns": None,
+        "age": None,
+        "location": None,
+        "occupation": None,
+        "school": None,
         "relationships": {},
-        "diagnoses": [], "medications": [],
-        "goals": [], "main_concerns": [],
+        "diagnoses": [],
+        "medications": [],
+        "goals": [],
+        "main_concerns": [],
         "custom_facts": {},
-        "first_interaction": None, "last_updated": None,
+        "first_interaction": None,
+        "last_updated": None,
         "total_interactions": 0,
     }
     p._name_exclusions = {
-        "i", "me", "my", "the", "a", "an", "and", "or", "but", "so", "just",
-        "really", "actually", "basically", "well", "yeah", "yes", "no", "not",
-        "hey", "hi", "hello", "bye", "good", "bad", "fine", "okay", "ok",
-        "happy", "sad", "angry", "scared", "worried", "anxious", "depressed",
-        "tired", "confused", "alone", "lonely", "morning", "evening", "night",
+        "i",
+        "me",
+        "my",
+        "the",
+        "a",
+        "an",
+        "and",
+        "or",
+        "but",
+        "so",
+        "just",
+        "really",
+        "actually",
+        "basically",
+        "well",
+        "yeah",
+        "yes",
+        "no",
+        "not",
+        "hey",
+        "hi",
+        "hello",
+        "bye",
+        "good",
+        "bad",
+        "fine",
+        "okay",
+        "ok",
+        "happy",
+        "sad",
+        "angry",
+        "scared",
+        "worried",
+        "anxious",
+        "depressed",
+        "tired",
+        "confused",
+        "alone",
+        "lonely",
+        "morning",
+        "evening",
+        "night",
     }
     return p
 
@@ -44,12 +88,14 @@ def profile(tmp_path):
 
 
 class TestNameExtraction:
-
-    @pytest.mark.parametrize("text,expected", [
-        ("My name is Sarah", "Sarah"),
-        ("I'm Alex", "Alex"),
-        ("Call me Jordan", "Jordan"),
-    ])
+    @pytest.mark.parametrize(
+        "text,expected",
+        [
+            ("My name is Sarah", "Sarah"),
+            ("I'm Alex", "Alex"),
+            ("Call me Jordan", "Jordan"),
+        ],
+    )
     def test_name_patterns(self, profile, text, expected):
         facts = profile.extract_facts(text)
         assert profile.facts["name"] == expected
@@ -76,12 +122,14 @@ class TestNameExtraction:
 
 
 class TestAgeExtraction:
-
-    @pytest.mark.parametrize("text,expected", [
-        ("I'm 25 years old", 25),
-        ("I am 30 years old", 30),
-        ("im 18 yo", 18),
-    ])
+    @pytest.mark.parametrize(
+        "text,expected",
+        [
+            ("I'm 25 years old", 25),
+            ("I am 30 years old", 30),
+            ("im 18 yo", 18),
+        ],
+    )
     def test_age_patterns(self, profile, text, expected):
         profile.extract_facts(text)
         assert profile.facts["age"] == expected
@@ -101,11 +149,13 @@ class TestAgeExtraction:
 
 
 class TestLocationExtraction:
-
-    @pytest.mark.parametrize("text,expected", [
-        ("i live in New York.", "New York"),
-        ("i'm from San Francisco.", "San Francisco"),
-    ])
+    @pytest.mark.parametrize(
+        "text,expected",
+        [
+            ("i live in New York.", "New York"),
+            ("i'm from San Francisco.", "San Francisco"),
+        ],
+    )
     def test_location_patterns(self, profile, text, expected):
         profile.extract_facts(text)
         assert profile.facts["location"] == expected
@@ -115,13 +165,15 @@ class TestLocationExtraction:
 
 
 class TestDiagnosisExtraction:
-
-    @pytest.mark.parametrize("text,expected", [
-        ("I have depression", "depression"),
-        ("I was diagnosed with anxiety", "anxiety"),
-        ("I've been diagnosed with PTSD", "ptsd"),
-        ("I struggle with OCD", "ocd"),
-    ])
+    @pytest.mark.parametrize(
+        "text,expected",
+        [
+            ("I have depression", "depression"),
+            ("I was diagnosed with anxiety", "anxiety"),
+            ("I've been diagnosed with PTSD", "ptsd"),
+            ("I struggle with OCD", "ocd"),
+        ],
+    )
     def test_diagnosis_patterns(self, profile, text, expected):
         profile.extract_facts(text)
         assert expected in profile.facts["diagnoses"]
@@ -142,7 +194,6 @@ class TestDiagnosisExtraction:
 
 
 class TestProfileSummary:
-
     def test_summary_empty_profile(self, profile):
         summary = profile.get_summary_for_llm()
         assert summary == ""
@@ -160,7 +211,6 @@ class TestProfileSummary:
 
 
 class TestEdgeCases:
-
     def test_empty_text(self, profile):
         facts = profile.extract_facts("")
         assert facts == []

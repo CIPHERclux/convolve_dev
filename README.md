@@ -1,224 +1,146 @@
-# Kairos — Multimodal Mental Health Support System
+<div align="center">
+  <h1>🧠 Kairos</h1>
+  <h3>Multimodal Mental Health Support System</h3>
+  <p>A production-grade AI platform that analyzes <b>what users say</b> and <b>how they say it</b>, combining NLP with acoustic biomarker extraction to detect hidden emotional patterns and psychological masking.</p>
 
-A production-grade mental health support platform that analyzes **what users say** and **how they say it**, combining natural language processing with acoustic biomarker analysis to detect hidden emotional patterns over time.
-
-Built with **FastAPI**, **React**, and **Qdrant** (vector database), featuring real-time crisis detection, cross-modal masking detection, and persistent emotional memory.
-
-[![CI](https://github.com/YOUR_USERNAME/kairos/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_USERNAME/kairos/actions)
+  [![Python](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
+  [![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=flat&logo=fastapi)](https://fastapi.tiangolo.com/)
+  [![React](https://img.shields.io/badge/react-%2320232a.svg?style=flat&logo=react&logoColor=%2361DAFB)](https://reactjs.org/)
+  [![Qdrant](https://img.shields.io/badge/Qdrant-f90b31?style=flat&logo=qdrant)](https://qdrant.tech/)
+</div>
 
 ---
 
-## Architecture
+## 🏗️ Architecture
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                      React Frontend                         │
-│         Chat UI · Voice Recording · State Visualizer        │
-└────────────────────────┬────────────────────────────────────┘
-                         │ REST API
-┌────────────────────────▼────────────────────────────────────┐
-│                    FastAPI Backend                           │
-│                                                             │
-│  ┌──────────┐  ┌──────────────┐  ┌────────────────────┐    │
-│  │  Routes   │  │ Orchestrator │  │   Safety Service   │    │
-│  │ (DI via   │──│  (async      │──│  (deterministic    │    │
-│  │ Depends())│  │  processing) │  │   crisis detection)│    │
-│  └──────────┘  └──────┬───────┘  └────────────────────┘    │
-│                       │                                     │
-│  ┌────────────────────▼─────────────────────────────────┐  │
-│  │              Feature Extraction Engine                │  │
-│  │  Acoustic (librosa) · Linguistic (VADER/regex) ·     │  │
-│  │  Special Signals (laughter/crying/sighs)             │  │
-│  └──────────────────────────────────────────────────────┘  │
-│                       │                                     │
-│  ┌────────────────────▼─────────────────────────────────┐  │
-│  │                  Memory Layer                         │  │
-│  │  Qdrant (384-dim vectors) · User Profiles (JSON) ·   │  │
-│  │  Biomarker Tracker · Baseline Manager (Welford's)    │  │
-│  └──────────────────────────────────────────────────────┘  │
-└─────────────────────────────────────────────────────────────┘
+```mermaid
+graph TD
+    UI[React + Vite Frontend<br/>Chat UI & Voice Recording] -->|REST API| API[FastAPI Backend]
+    
+    subgraph Backend
+        API --> ORC[Orchestrator Service<br/>Async Event Loop]
+        ORC --> SAFE[Safety Service<br/>Deterministic Crisis Detection]
+        ORC --> NLP[Feature Extraction Engine<br/>librosa, VADER, regex]
+        ORC --> MEM[Memory Layer<br/>Qdrant Vector Search]
+    end
+    
+    NLP --> LLM[LLaMA-3 / Groq<br/>Response Generation & Tool Calling]
+    MEM --> LLM
 ```
 
 ---
 
-## Key Features
+## ✨ Key Features
 
-### Multimodal Analysis
-- **28-dimensional biomarker vector** extracted per turn (acoustic, linguistic, visual, special signals)
-- Acoustic features: jitter, shimmer, F0 variance, speech rate, pause rate, TEO, HNR
-- Linguistic features: absolutist index, I-ratio, lexical density, rumination score, sentiment
-- Special signals: laughter, crying, sighing, vocal strain detection
-
-### Cross-Modal Masking Detection
-Identifies contradictions between *what users say* and *how they sound*:
-- Voice tremor + positive text → hidden anxiety
-- Flat pitch + high volume → suppressed emotions
-- Laughter + crying co-occurrence → complex emotional state
-
-### Persistent Emotional Memory
-- Semantic search over past interactions (Qdrant, cosine similarity)
-- Per-user baseline calibration via **Welford's online algorithm**
-- Delta tracking: significant biomarker changes between turns
-- Distress trend analysis over rolling windows
-
-### Safety-First Design
-- Deterministic regex-based crisis detection (critical/high/moderate/none)
-- Biomarker-driven risk escalation (crying > 0.5, sentiment < -0.7)
-- Runs **before** LLM calls — never delegates safety to a language model
+*   **Multimodal Analysis:** Extracts a 28-dimensional biomarker vector per audio turn (acoustic, linguistic, visual, special signals like sighs and laughter).
+*   **Cross-Modal Masking Detection:** Identifies contradictions between text and voice (e.g., flat pitch + high volume indicating suppressed emotion).
+*   **Persistent Emotional Memory:** Uses **Qdrant** for semantic search over past interactions and Welford's algorithm to compute rolling per-user baselines.
+*   **Safety-First Design:** Deterministic, regex-based crisis detection runs *before* any LLM calls—never delegating user safety to an unpredictable language model.
+*   **Non-Blocking I/O:** CPU-heavy DSP operations (like librosa) and API calls are offloaded to asynchronous thread pools, ensuring maximum API responsiveness.
 
 ---
 
-## Tech Stack
+## 🛠️ Tech Stack
 
 | Layer | Technology | Purpose |
 |-------|-----------|---------|
-| Frontend | React 19 + Vite | Chat UI with voice recording |
-| Backend | FastAPI + Uvicorn | Async API server |
-| ML/NLP | sentence-transformers, librosa, VADER | Feature extraction |
-| Memory | Qdrant | Vector similarity search |
-| LLM | OpenAI / Groq (configurable) | Response generation |
-| CI/CD | GitHub Actions + ruff + pytest | Automated linting & testing |
+| **Frontend** | React 19 + Vite | Glassmorphic Chat UI with Web Audio API recording |
+| **Backend** | FastAPI + Uvicorn | High-performance async Python server |
+| **ML / NLP** | sentence-transformers, librosa, VADER | Multi-vector feature extraction |
+| **Memory** | Qdrant (via Docker) | Low-latency vector similarity search |
+| **LLM** | Groq (LLaMA-3 / Whisper) | Tool-calling agent for profiling and empathy |
+| **CI/CD** | GitHub Actions, Ruff, Pytest | Automated linting (PEP 8) and testing pipeline |
 
 ---
 
-## Design Decisions
+## 🚀 Quick Start Manual
 
-| Decision | Rationale |
-|----------|-----------|
-| **FastAPI Dependency Injection** over global state | Testability, thread safety, explicit dependencies |
-| **`asyncio.to_thread()`** for audio processing | Prevents event loop starvation from CPU-bound librosa/DSP work |
-| **Deterministic safety checks** (regex, not LLM) | Crisis detection must be predictable and auditable |
-| **Single 384-dim vector** (not multi-vector) | Simplicity over marginal recall gains; acoustic features stored as payload metadata |
-| **Welford's algorithm** for baselines | O(1) memory, numerically stable, no stored history needed |
-| **No Celery/Redis** | Lightweight enough for local dev; `to_thread()` sufficient for current scale |
+Follow these exact steps to run Kairos locally on your machine.
 
----
+### 1. Prerequisites & System Dependencies
 
-## Local Development
+You **must** have Python 3.9+ and Node.js 18+ installed.
 
-### Prerequisites
-- Python 3.10+
-- Node.js 18+
-- Docker (optional, for Qdrant)
+Because Kairos processes raw audio files, you also need the core `ffmpeg` system library installed on your operating system.
 
-### Backend
+**🍎 For macOS:**
+```bash
+brew install ffmpeg
+```
 
+**🪟 For Windows (PowerShell):**
+```powershell
+winget install ffmpeg
+```
+
+### 2. Backend Setup
+
+Open a terminal in the root of the repository.
+
+**🍎 For macOS / Linux:**
 ```bash
 cd backend
+python3 -m venv venv
+source venv/bin/activate
+pip install fastapi uvicorn pydantic pydantic-settings qdrant-client sentence-transformers librosa openai python-multipart soundfile vaderSentiment ruff
+```
+
+**🪟 For Windows (PowerShell):**
+```powershell
+cd backend
 python -m venv venv
-source venv/bin/activate  # or venv\Scripts\activate on Windows
-pip install -r requirements.txt
+.\venv\Scripts\activate
+pip install fastapi uvicorn pydantic pydantic-settings qdrant-client sentence-transformers librosa openai python-multipart soundfile vaderSentiment ruff
+```
 
-# Configure environment
+### 3. Environment Variables
+In the `backend/` directory, duplicate the example file to create your local `.env`:
+```bash
 cp .env.example .env
-# Edit .env with your LLM API key
+```
+Open `.env` and add your **Groq API Key**:
+```ini
+GROQ_API_KEY=your_key_here
+```
 
-# Run
+### 4. Running the Applications
+
+You will need three separate terminal windows to run the full stack:
+
+**Terminal 1: Qdrant Database (Optional but recommended)**
+```bash
+docker-compose up -d
+```
+*(Note: If you skip this, the app gracefully degrades and chat will still work without memory.)*
+
+**Terminal 2: FastAPI Backend**
+```bash
+cd backend
+source venv/bin/activate  # Windows: .\venv\Scripts\activate
 uvicorn app.main:app --reload --port 8000
 ```
 
-### Frontend
-
+**Terminal 3: React Frontend**
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
 
-### Qdrant (Optional)
-
-```bash
-docker compose up -d
-```
-
-The backend gracefully degrades without Qdrant — memory features are disabled but chat still works.
+Navigate to **`http://localhost:5173`** in your browser to begin a session!
 
 ---
 
-## Testing
+## 🧪 Testing & CI/CD
+
+This project strictly adheres to PEP 8 standards enforced by `ruff` and contains over 70 automated tests validating safety and logic boundaries.
 
 ```bash
 cd backend
-pip install pytest ruff
-
-# Run tests (74 tests across safety, linguistics, profile extraction)
+# Run test suite
 python -m pytest tests/ -v
 
-# Lint
+# Run linter & formatter
 ruff check app/ tests/
+ruff format app/ tests/
 ```
-
-### Test Coverage
-
-| Module | Tests | What's Covered |
-|--------|-------|---------------|
-| `SafetyService` | 28 | Crisis patterns (critical/high/moderate), biomarker escalation, edge cases |
-| `LinguisticEngine` | 14 | All 8 features, output shape, value bounds |
-| `UserProfile` | 32 | Name/age/location/diagnosis extraction, deduplication, persistence |
-
----
-
-## API Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `POST` | `/api/v1/session/start` | Start a new chat session |
-| `DELETE` | `/api/v1/session/{id}` | End a session |
-| `POST` | `/api/v1/chat/text` | Send text message |
-| `POST` | `/api/v1/chat/audio` | Send audio file (with transcription) |
-| `GET` | `/api/v1/profile/{user_id}` | Get user profile facts |
-| `GET` | `/health` | Health check + Qdrant status |
-
----
-
-## Project Structure
-
-```
-backend/
-├── app/
-│   ├── api/
-│   │   ├── dependencies.py      # FastAPI DI providers
-│   │   └── routes/              # chat, session, profile, health
-│   ├── extraction/
-│   │   ├── acoustic_engine.py   # librosa DSP features
-│   │   ├── linguistic_engine.py # VADER + regex features
-│   │   └── feature_engine.py    # Orchestrates extraction
-│   ├── memory/
-│   │   ├── memory_controller.py # Qdrant interaction layer
-│   │   ├── biomarker_tracker.py # Rolling-window analysis
-│   │   ├── baseline_manager.py  # Welford's algorithm
-│   │   └── user_profile.py      # Deterministic fact storage
-│   ├── services/
-│   │   ├── orchestrator.py      # Main coordination service
-│   │   ├── llm_service.py       # LLM with tool calling
-│   │   ├── safety_service.py    # Crisis detection
-│   │   └── session_manager.py   # Session lifecycle
-│   ├── models/
-│   │   ├── schemas.py           # Pydantic request/response models
-│   │   └── model_registry.py    # Thread-safe ML model singleton
-│   └── config.py                # pydantic-settings configuration
-├── tests/                       # pytest suite
-└── pyproject.toml               # ruff + pytest config
-
-frontend/
-├── src/
-│   ├── App.jsx                  # Main chat interface
-│   ├── components/ChatBubble.jsx
-│   └── services/api.js          # API client
-└── package.json
-```
-
----
-
-## Research Background
-
-This project evolved from a research prototype built for a Qdrant hackathon. The original prototype documentation (Colab instructions, multi-vector architecture, Graph-RAG design) is preserved in [`docs/research-prototype.md`](docs/research-prototype.md).
-
----
-
-## Ethics & Safety
-
-- Kairos is a **support system**, not therapy or a diagnostic tool
-- Crisis detection uses deterministic rules, not probabilistic LLM outputs
-- Conservative language — no diagnoses, no certainty claims
-- Designed for **privacy-first, local deployment**

@@ -21,7 +21,6 @@ def engine():
 
 
 class TestAbsolutistIndex:
-
     def test_high_absolutist_language(self, engine):
         text = "I always fail at everything, nothing ever goes right, never ever"
         features = engine.extract(text)
@@ -37,7 +36,6 @@ class TestAbsolutistIndex:
 
 
 class TestIRatio:
-
     def test_high_self_focus(self, engine):
         text = "I feel like I'm always messing up my life and I can't fix myself"
         features = engine.extract(text)
@@ -53,7 +51,6 @@ class TestIRatio:
 
 
 class TestLexicalDensity:
-
     def test_low_density_repetitive(self, engine):
         text = "bad bad bad bad bad bad bad bad"
         features = engine.extract(text)
@@ -69,7 +66,6 @@ class TestLexicalDensity:
 
 
 class TestPastTenseRatio:
-
     def test_past_tense_heavy(self, engine):
         text = "I went to the store and saw my friend who told me she had moved away"
         features = engine.extract(text)
@@ -85,7 +81,6 @@ class TestPastTenseRatio:
 
 
 class TestSentiment:
-
     def test_very_negative_crisis(self, engine):
         text = "I don't want to live anymore"
         features = engine.extract(text)
@@ -106,7 +101,6 @@ class TestSentiment:
 
 
 class TestRumination:
-
     def test_repetitive_negative(self, engine):
         text = "Why does this always happen? Why can't I ever get it right? Why why why"
         features = engine.extract(text)
@@ -122,7 +116,6 @@ class TestRumination:
 
 
 class TestOutputShape:
-
     def test_returns_8_features(self, engine):
         features = engine.extract("Hello there")
         assert len(features) == 8
