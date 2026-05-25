@@ -23,7 +23,12 @@ class Settings(BaseSettings):
     PORT: int = 8000
 
     # ── CORS ─────────────────────────────────────────────────────────────
-    CORS_ORIGINS: list = ["http://localhost:5173", "http://localhost:3000"]
+    CORS_ORIGINS: list = [
+        "http://localhost:5173",
+        "http://localhost:3000",
+        "https://convolve-dev.vercel.app",
+        "https://*.vercel.app",
+    ]
 
     # ── LLM ──────────────────────────────────────────────────────────────
     LLM_API_KEY: str = ""
