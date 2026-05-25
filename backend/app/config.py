@@ -44,6 +44,7 @@ class Settings(BaseSettings):
     # ── Qdrant ───────────────────────────────────────────────────────────
     QDRANT_HOST: str = "localhost"
     QDRANT_PORT: int = 6333
+    QDRANT_API_KEY: Optional[str] = None   # required for Qdrant Cloud
     QDRANT_COLLECTION: str = "convolve_memories"
 
     # ── Audio ────────────────────────────────────────────────────────────

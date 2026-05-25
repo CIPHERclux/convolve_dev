@@ -54,18 +54,30 @@ class MemoryController:
         self._connect()
 
     def _connect(self):
-        """Connect to Qdrant (Docker container)."""
+        """Connect to Qdrant (local Docker or Qdrant Cloud)."""
         try:
-            self.client = QdrantClient(
-                host=settings.QDRANT_HOST,
-                port=settings.QDRANT_PORT,
-                timeout=10,
-            )
+            if settings.QDRANT_API_KEY:
+                # Qdrant Cloud — use HTTPS + API key
+                self.client = QdrantClient(
+                    host=settings.QDRANT_HOST,
+                    port=settings.QDRANT_PORT,
+                    api_key=settings.QDRANT_API_KEY,
+                    https=True,
+                    timeout=10,
+                )
+            else:
+                # Local Docker — plain HTTP, no auth
+                self.client = QdrantClient(
+                    host=settings.QDRANT_HOST,
+                    port=settings.QDRANT_PORT,
+                    timeout=10,
+                )
             self._ensure_collection()
             log.info(f"Connected to Qdrant at {settings.QDRANT_HOST}:{settings.QDRANT_PORT}")
         except Exception as e:
             log.warning(f"Qdrant connection failed: {e} — running without persistent memory")
             self.client = None
+
 
     def _ensure_collection(self):
         """Create collection if it doesn't exist."""

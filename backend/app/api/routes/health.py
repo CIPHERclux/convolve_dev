@@ -16,7 +16,13 @@ async def health_check():
     try:
         from qdrant_client import QdrantClient
 
-        client = QdrantClient(host=settings.QDRANT_HOST, port=settings.QDRANT_PORT, timeout=3)
+        client = QdrantClient(
+            host=settings.QDRANT_HOST,
+            port=settings.QDRANT_PORT,
+            api_key=settings.QDRANT_API_KEY or None,
+            https=bool(settings.QDRANT_API_KEY),
+            timeout=3,
+        )
         client.get_collections()
         qdrant_ok = True
     except Exception:
