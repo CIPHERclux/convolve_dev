@@ -1,5 +1,5 @@
 <div align="center">
-  <h1>🧠 Kairos</h1>
+  <h1> Kairos</h1>
   <h3>Multimodal Mental Health Support System</h3>
   <p>A production-grade AI platform that analyzes <b>what users say</b> and <b>how they say it</b>, combining NLP with acoustic biomarker extraction to detect hidden emotional patterns and psychological masking.</p>
 
@@ -11,7 +11,7 @@
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ```mermaid
 graph TD
@@ -30,7 +30,7 @@ graph TD
 
 ---
 
-## ✨ Key Features
+## Key Features
 
 *   **Multimodal Analysis:** Extracts a 28-dimensional biomarker vector per audio turn (acoustic, linguistic, visual, special signals like sighs and laughter).
 *   **Cross-Modal Masking Detection:** Identifies contradictions between text and voice (e.g., flat pitch + high volume indicating suppressed emotion).
@@ -40,7 +40,7 @@ graph TD
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 | Layer | Technology | Purpose |
 |-------|-----------|---------|
@@ -53,7 +53,7 @@ graph TD
 
 ---
 
-## 🚀 Quick Start Manual
+## Quick Start Manual
 
 Follow these exact steps to run Kairos locally on your machine.
 
@@ -63,12 +63,12 @@ You **must** have Python 3.9+ and Node.js 18+ installed.
 
 Because Kairos processes raw audio files, you also need the core `ffmpeg` system library installed on your operating system.
 
-**🍎 For macOS:**
+**For macOS:**
 ```bash
 brew install ffmpeg
 ```
 
-**🪟 For Windows (PowerShell):**
+**For Windows (PowerShell):**
 ```powershell
 winget install ffmpeg
 ```
@@ -77,7 +77,7 @@ winget install ffmpeg
 
 Open a terminal in the root of the repository.
 
-**🍎 For macOS / Linux:**
+** For macOS / Linux:**
 ```bash
 cd backend
 python3 -m venv venv
@@ -85,7 +85,7 @@ source venv/bin/activate
 pip install fastapi uvicorn pydantic pydantic-settings qdrant-client sentence-transformers librosa openai python-multipart soundfile vaderSentiment ruff
 ```
 
-**🪟 For Windows (PowerShell):**
+** For Windows (PowerShell):**
 ```powershell
 cd backend
 python -m venv venv
@@ -131,7 +131,7 @@ Navigate to **`http://localhost:5173`** in your browser to begin a session!
 
 ---
 
-## 🧪 Testing & CI/CD
+## Testing & CI/CD
 
 This project strictly adheres to PEP 8 standards enforced by `ruff` and contains over 70 automated tests validating safety and logic boundaries.
 
